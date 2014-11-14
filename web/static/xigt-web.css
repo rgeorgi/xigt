@@ -7,16 +7,38 @@
 }
 
 .tier {
+    display: table-row;
     width: auto;
 }
 
+.tier-header {
+    display: table-row-header;
+    height: 100%;
+}
+.tier-content {
+    display: table-cell;
+}
 .tier.enumeration { }
 .tier.interlinear { display: table-row; }
 
+.item {
+    display: inline-block;
+    /*float: left;*/
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 2px;
+    margin-right: 2px;
+    background-color: #EEE;
+}
+.item:hover {
+    background-color: #4AC;
+    color: #FFF;
+}
 .item.enumeration { display: list-item; }
 .item.interlinear {
     /*float: left;*/
-    display: table-cell;
+    /*display: table-cell;*/
+    white-space: nowrap;
     border: solid;
     border-width: thin;
     width: auto;

@@ -7,10 +7,11 @@
   {% else %}
   {% endif %}
 {%- endmacro %}
-<div class="tier {{ getclass(tier.type) }}">
-  {% for item_grp in item_groups(tier) %}
-    <div class="i"
-    {% }
-  <div class="item {{ getclass(tier.type) }}">{{ item.get_content() }}</div>
+<div class="tier">
+  <div class="tier-header">{{ tier.type|safe }}</div>
+  <div class="tier-content">
+  {% for item in tier.items %}
+    <div class="item">{{ item.get_content() }}</div>
   {% endfor %}
+  </div>
 </div>
