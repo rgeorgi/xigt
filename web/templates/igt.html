@@ -1,0 +1,5 @@
+<div class="igt">
+{% for tier in igt.tiers %}
+  {% include [tier.type|safe + '-tier.html', 'tier.html'] %}
+{% endfor %}
+</div>

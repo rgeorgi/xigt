@@ -1,0 +1,6 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% for igt in xc.igts %}
+    {% include 'igt.html' %}
+  {% endfor %}
+{% endblock %}

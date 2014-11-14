@@ -1,0 +1,25 @@
+
+.igt {
+    display: table;
+    width: auto;
+    border: 1px solid;
+    border-spacing: 5px;
+}
+
+.tier {
+    width: auto;
+}
+
+.tier.enumeration { }
+.tier.interlinear { display: table-row; }
+
+.item.enumeration { display: list-item; }
+.item.interlinear {
+    /*float: left;*/
+    display: table-cell;
+    border: solid;
+    border-width: thin;
+    width: auto;
+    padding-left: 5px;
+    padding-right: 5px;
+}

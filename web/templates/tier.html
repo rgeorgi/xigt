@@ -1,0 +1,16 @@
+{# Determine if tiers are interlinear or not #}
+{% macro getclass(type) -%}
+  {% if type in ['phrases', 'translations'] %}
+    enumeration
+  {% elif type in ['words', 'morphemes', 'glosses'] %}
+    interlinear
+  {% else %}
+  {% endif %}
+{%- endmacro %}
+<div class="tier {{ getclass(tier.type) }}">
+  {% for item_grp in item_groups(tier) %}
+    <div class="i"
+    {% }
+  <div class="item {{ getclass(tier.type) }}">{{ item.get_content() }}</div>
+  {% endfor %}
+</div>
