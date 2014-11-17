@@ -128,12 +128,10 @@ class XigtAttributeMixin(object):
         try:
             return self.attributes[key]
         except KeyError:
-            if not inherit or not _has_parent(self) or key:
-                raise
+            if inherit and _has_parent(self) and key not in self._local_attrs:
+                return self._parent.get_attribute(key, default, inherit)
                 # raise XigtAttributeError('No attribute {}.'.format(key))
-            if key in self._local_attrs:
-                return None  # don't inherit local-only attributes
-            return self._parent.get_attribute(key, default, inherit)
+            return default
 
     @property
     def alignment(self):
@@ -339,7 +337,7 @@ class Tier(XigtMixin, XigtAttributeMixin, XigtMetadataMixin):
             self._list = value
 
     def get_aligned_tier(self, algnattr):
-        tgt_tier_id = self.get_attribute(algnattr)
+        tgt_tier_id = self.get_attribute(algnattr, default=None)
         if tgt_tier_id is None:
             raise XigtAttributeError(
                 'Tier {} does not specify an alignment "{}".'
@@ -488,6 +486,50 @@ def resolve_alignment(tier, item_id, selection, plus=delim1, comma=delim2):
 
 
 # Auxiliary Functions ########################################################
+
+def alignment_closures(tiers, relations=None):
+    """
+    Return lists of tiers from `tiers` such that all tiers in a list
+    are aligned (perhaps transitively) to each other by a relation in
+    `relations`. The default relations are
+    `["alignment", "segmentation"]`. In general, only one relation
+    should be specified per tier.
+    """
+    relations = list(relations or ['alignment', 'segmentation'])
+    tiers = list(tiers)
+    if len(tiers) == 0:
+        return None
+    tier_map = {t.id: i for i, t in enumerate(tiers) if t.id is not None}
+    algns = []
+    for i, t in enumerate(tiers):
+        algns.append(set([i]))
+        for r in relations:
+            try:
+                t2 = t.get_aligned_tier(r)
+            except XigtAttributeError:
+                pass
+            else:
+                algns.append(set([i, tier_map[t2.id]]))
+    # brute force transitive closure, but we're dealing with small sets
+    while algns:
+        curset = algns[0]
+        algns = algns[1:]
+        while True:
+            num_merged = 0
+            remaining = []
+            for algn in algns:
+                if algn & curset:
+                    curset.update(algn)
+                    num_merged += 1
+                else:
+                    remaining.append(algn)
+            algns = remaining
+            if num_merged == 0:
+                break
+        yield [tiers[i] for i in sorted(curset)]
+            
+
+
 
 def segment_tier(tier, delimiters=None, keep_delimiters=True):
     """

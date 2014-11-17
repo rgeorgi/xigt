@@ -1,0 +1,11 @@
+{
+    "default_tier_class": "",
+    "tier_classes": {
+        "words": "interlinear",
+        "morphemes": "interlinear",
+        "glosses": "interlinear",
+        "phrases": "enumeration",
+        "translations": "enumeration"
+    },
+    "max_igts_per_page": 10
+}

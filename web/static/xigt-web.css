@@ -17,8 +17,9 @@
 }
 .tier-content {
     display: table-cell;
+    position: relative;
 }
-.tier.enumeration { }
+.tier.enumeration { list-style-type: none; }
 .tier.interlinear { display: table-row; }
 
 .item {
@@ -34,10 +35,15 @@
     background-color: #4AC;
     color: #FFF;
 }
+.column {
+    display: inline-block;
+}
 .item.enumeration { display: list-item; }
-.item.interlinear {
+div.interlinear div.item {
+    position: relative;
     /*float: left;*/
     /*display: table-cell;*/
+    height: 100%;
     white-space: nowrap;
     border: solid;
     border-width: thin;

@@ -1,5 +1,7 @@
-<div class="igt">
+{% set igtId = igt.id|safe %}
+<div class="igt" id="{{ igtId }}">
 {% for tier in igt.tiers %}
   {% include [tier.type|safe + '-tier.html', 'tier.html'] %}
 {% endfor %}
 </div>
+<script>igtLayout("#{{ igtId }}")</script>

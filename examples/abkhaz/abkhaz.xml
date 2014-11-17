@@ -51,13 +51,13 @@ The boy does not see the girl.
       <item id="p1">at͡ʂʰkʷʰən atəpha dəjəbajt</item>
     </tier>
     <tier type="words" id="w" segmentation="p">
-      <item id="w1" segmentation="p1[0:9]"/>
-      <item id="w2" segmentation="p1[10:16]"/>
-      <item id="w3" segmentation="p1[17:25]"/>
+      <item id="w1" segmentation="p1[0:10]"/>
+      <item id="w2" segmentation="p1[11:17]"/>
+      <item id="w3" segmentation="p1[18:26]"/>
     </tier>
     <tier type="morphemes" id="m" segmentation="w">
       <item id="w1m1" segmentation="w1[0:1]"/>
-      <item id="w1m2" segmentation="w1[1:9]"/>
+      <item id="w1m2" segmentation="w1[1:10]"/>
       <item id="w2m1" segmentation="w2[0:1]"/>
       <item id="w2m2" segmentation="w2[1:6]"/>
       <item id="w3m1" segmentation="w3[0:2]"/>
@@ -101,13 +101,13 @@ The boy does not see the girl.
       <item id="p1">at͡ʂʰkʷʰən atəpha dəjəbawam</item>
     </tier>
     <tier type="words" id="w" segmentation="p">
-      <item id="w1" segmentation="p1[0:9]"/>
-      <item id="w2" segmentation="p1[10:16]"/>
-      <item id="w3" segmentation="p1[17:26]"/>
+      <item id="w1" segmentation="p1[0:10]"/>
+      <item id="w2" segmentation="p1[11:17]"/>
+      <item id="w3" segmentation="p1[18:27]"/>
     </tier>
     <tier type="morphemes" id="m" segmentation="w">
       <item id="w1m1" segmentation="w1[0:1]"/>
-      <item id="w1m2" segmentation="w1[1:9]"/>
+      <item id="w1m2" segmentation="w1[1:10]"/>
       <item id="w2m1" segmentation="w2[0:1]"/>
       <item id="w2m2" segmentation="w2[1:6]"/>
       <item id="w3m1" segmentation="w3[0:2]"/>

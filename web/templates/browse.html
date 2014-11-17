@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
+<script>var settings = JSON.parse('{{settings|safe}}');</script>
 {% block body %}
-  {% for igt in xc.igts %}
+  {% for igt in igts %}
     {% include 'igt.html' %}
   {% endfor %}
 {% endblock %}

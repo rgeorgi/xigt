@@ -1,8 +1,0 @@
-<div class="tier interlinear">
-  <div class="tier-header">{{ tier.type|safe }}</div>
-  <div class="tier-content">
-  {% for item in tier.items %}
-    <div class="item interlinear">{{ item.get_content() }}</div>
-  {% endfor %}
-  </div>
-</div>
