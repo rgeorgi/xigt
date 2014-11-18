@@ -3,7 +3,7 @@ import sys
 import json
 #from os import path
 from xigt.codecs import xigtxml
-from xigt.views import nested_columns
+from xigt.views import item_groups
 from flask import Flask, flash, request, render_template, url_for
 
 app = Flask(__name__)
@@ -16,13 +16,22 @@ with open('config.json') as f:
 
 xc = xigtxml.load(open(sys.argv[1], 'r'))
 
+def make_item_object(item):
+    obj = {'id': item.id}
+    if item.type: obj['type'] = item.type
+    if item.text: obj['text'] = item.text
+    obj.update(item.attributes)
+    return obj
+
 def make_igt_object(igt):
     tiers = []
     for tier in igt.tiers:
         tier_obj = {
             'id': tier.id,
             'type': tier.type,
-            'children': tier.items,
+            'groups': [{'ids': ig[0] or None,
+                        'items': [make_item_object(i) for i in ig[1]]}
+                       for ig in item_groups(tier)],
             'class': settings.get('tier_classes', {}).get(
                 tier.type, settings.get('default_tier_class', '')
             )

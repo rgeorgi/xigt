@@ -7,6 +7,26 @@ except ImportError:
 from collections import deque
 from xigt.core import get_alignment_expression_ids, alignment_closures
 
+def item_groups(tier, relations=None):
+    relations = list(relations or ['alignment', 'segmentation'])
+    curids = set()
+    curgrp = []
+    for item in tier:
+        rel = next(filter(item.attributes.__contains__, relations), None)
+        if rel is None:
+            ids = ['']
+        else:
+            ids = get_alignment_expression_ids(item.attributes[rel])
+        if not curids or curids.intersection(ids):
+            curids.update(ids)
+            curgrp.append(item)
+        else:
+            yield ([] if '' in curids else sorted(curids), curgrp)
+            curids = set(ids)
+            curgrp = [item]
+    if curgrp:
+        yield ([] if '' in curids else sorted(curids), curgrp)
+
 def nested_columns(igt, relations=None, method='left-align'):
     """
     Return a list of tiers where each tier is a sequence of columns

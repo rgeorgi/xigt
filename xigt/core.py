@@ -111,7 +111,7 @@ class XigtAttributeMixin(object):
         # _local_attrs are those that should not be inherited (only valid
         # locally). By default include these pre-defined Xigt attributes.
         self._local_attrs = set([
-            'id', 'type', ALIGNMENT, CONTENT, SEGMENTATION
+            'id', 'type', 'text', ALIGNMENT, CONTENT, SEGMENTATION
         ])
         self.attributes = OrderedDict()
         # core alignment expression attributes go first
@@ -527,7 +527,7 @@ def alignment_closures(tiers, relations=None):
             if num_merged == 0:
                 break
         yield [tiers[i] for i in sorted(curset)]
-            
+
 
 
 

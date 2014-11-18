@@ -1,10 +1,7 @@
-<div class="tier {{ tier.class }}">
-  <div class="tier-header">{{ tier.type|safe }}</div>
-  <div class="tier-content">
-  {% for item in tier.children %}
-    <div class="column">
-      <div class="item" data-id="{{ item.id|safe }}">{{ item.get_content() }}</div>
-    </div>
+{% for group in tier.groups %}
+  <div class="column" {{ 'data-column=%s' % group.ids|join(" ")|safe if group['ids'] }}>
+  {% for item in group['items'] %}
+    <div class="item" data-id="{{ item.id|safe }}">{#{ item.get_content() }#}</div>
   {% endfor %}
   </div>
-</div>
+{% endfor %}
