@@ -76,12 +76,37 @@ function igtLayout(elemId, igtData) {
     var igt = d3.select(elemId);
     var tiers = igt.selectAll(".tier")
         .data(igtData.tiers);
-    //  .enter().append("div")
-    //    .attr("class", function(d) { return tierClasses(d).join(" "); });
-    // tiers.append("div")
-    //     .attr("class", "tier-header")
-    //     .text(function(d) { return d.type; });
-    // tiers.append("div")
-    //     .attr("class", "tier-content");
-    //igt.selectAll("div.tier.interlinear div.column");
+    tiers.each(function(td) {
+        var groups = d3.select(this).selectAll("div.tier-content div.column")
+            .data(td.groups);
+        groups.each(function(gd) {
+            d3.select(this).selectAll("div.item")
+                .data(gd.items)
+                .on("mouseover", function(d) {
+                    (alignmentExpressionSpans(d.segmentation) || []).forEach(function(term) {
+                        if (term.id !== undefined) {
+                            var item = igt.select("[data-id=\"" + term.id + "\"]");
+                            item.classed("segmented", true);
+                        }
+                    });
+                })
+
+
+            //items.append(groups.selectAll("div.item").data(gd.items));
+        });
+    });
+    var items = tiers.selectAll("div.item");
+    items.text(function(d) { return getItemContent(elemId, d.id); });
+    // resize columns
+    // some possibilities:
+    // many to many
+    // many to none
+    // none to many
+    // var interlinearTierIds = []
+    // igt.selectAll("tier.interlinear").each(function(d){
+    //     interlinearTierIds.push(d.id);        
+    // });
+    // var sizeAffects = {};
+    // var sizeDepends = {};
+
 }

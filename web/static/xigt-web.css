@@ -1,4 +1,8 @@
 
+div {
+    /*border-radius: 4px;*/
+}
+
 .igt {
     display: table;
     width: auto;
@@ -25,11 +29,9 @@
 .item {
     display: inline-block;
     /*float: left;*/
-    padding-left: 2px;
-    padding-right: 2px;
-    margin-left: 2px;
-    margin-right: 2px;
-    background-color: #EEE;
+    padding: 4px;
+    margin: 2px;
+    background-color: none;
 }
 .item:hover {
     background-color: #4AC;
@@ -37,6 +39,11 @@
 }
 .column {
     display: inline-block;
+    margin-top: 2px;
+    background-color: #F2EBE0;    
+    border: solid;
+    border-color: #D0D0CC;
+    border-width: thin;
 }
 .item.enumeration { display: list-item; }
 div.interlinear div.item {
@@ -47,7 +54,15 @@ div.interlinear div.item {
     white-space: nowrap;
     border: solid;
     border-width: thin;
+    border-color: #998;
     width: auto;
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+div.interlinear div.item:hover {
+    border-color: #4AC;
+}
+
+.item.segmented {
+    background-color: yellow;
 }
