@@ -29,9 +29,10 @@ def make_igt_object(igt):
         tier_obj = {
             'id': tier.id,
             'type': tier.type,
-            'groups': [{'ids': ig[0] or None,
-                        'items': [make_item_object(i) for i in ig[1]]}
-                       for ig in item_groups(tier)],
+            'items': [make_item_object(i) for i in tier.items],
+            # 'groups': [{'ids': ig[0] or None,
+            #             'items': [make_item_object(i) for i in ig[1]]}
+            #            for ig in item_groups(tier)],
             'class': settings.get('tier_classes', {}).get(
                 tier.type, settings.get('default_tier_class', '')
             )

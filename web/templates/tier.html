@@ -1,7 +1,7 @@
-{% for group in tier.groups %}
-  <div class="column" {{ 'data-column=%s' % group.ids|join(" ")|safe if group['ids'] }}>
-  {% for item in group['items'] %}
+{#{% for group in tier.groups %}
+  <div class="column" {{ 'data-column=%s' % group.ids|join(" ")|safe if group['ids'] }}>#}
+  {% for item in tier['items'] %}
     <div class="item" data-id="{{ item.id|safe }}">{#{ item.get_content() }#}</div>
   {% endfor %}
-  </div>
-{% endfor %}
+  {#</div>
+{% endfor %}#}

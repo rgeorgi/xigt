@@ -77,11 +77,11 @@ function igtLayout(elemId, igtData) {
     var tiers = igt.selectAll(".tier")
         .data(igtData.tiers);
     tiers.each(function(td) {
-        var groups = d3.select(this).selectAll("div.tier-content div.column")
-            .data(td.groups);
-        groups.each(function(gd) {
+        //var groups = d3.select(this).selectAll("div.tier-content div.column")
+        //    .data(td.groups);
+        //groups.each(function(gd) {
             d3.select(this).selectAll("div.item")
-                .data(gd.items)
+                .data(td.items)
                 .on("mouseover", function(d) {
                     (alignmentExpressionSpans(d.segmentation) || []).forEach(function(term) {
                         if (term.id !== undefined) {
@@ -90,10 +90,14 @@ function igtLayout(elemId, igtData) {
                         }
                     });
                 })
+                .on("mouseout", function(d) {
+                    igt.selectAll(".segmented")
+                        .classed("segmented", false);
+                });
 
 
             //items.append(groups.selectAll("div.item").data(gd.items));
-        });
+        //});
     });
     var items = tiers.selectAll("div.item");
     items.text(function(d) { return getItemContent(elemId, d.id); });
@@ -104,7 +108,7 @@ function igtLayout(elemId, igtData) {
     // none to many
     // var interlinearTierIds = []
     // igt.selectAll("tier.interlinear").each(function(d){
-    //     interlinearTierIds.push(d.id);        
+    //     interlinearTierIds.push(d.id);
     // });
     // var sizeAffects = {};
     // var sizeDepends = {};
