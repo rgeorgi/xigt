@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
-<script>var settings = {{settings|tojson|safe}};</script>
 {% block body %}
+  <script>var settings = {{settings|tojson|safe}};</script>
+  <script src="{{ url_for('static', filename='xigt-web.js') }}"></script>
   {% for igt in igts %}
     {% include 'igt.html' %}
   {% endfor %}

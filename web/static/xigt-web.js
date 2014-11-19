@@ -1,6 +1,6 @@
 
-function selectItem(igtElem, itemId) {
-    return d3.select(igtElem).select("[data-id=\"" + itemId + "\"]");
+function selectItem(igt, itemId) {
+    return d3.select(igt).select("[data-id=\"" + itemId + "\"]");
 }
 
 var algnexprRe = /([a-zA-Z][\-.\w]*)(\[[^\]]*\])?|\+|,/g;
@@ -51,17 +51,92 @@ function resolveAlignmentExpression(igt, alex) {
     return tokens.join("");
 }
 
+function highlightReferents(igt, d) {
+    (settings.reference_attributes || []).forEach(function(refAttr) {
+        if (d[refAttr] == null) return;
+        aeSpans = alignmentExpressionSpans(d[refAttr]);
+        if (aeSpans == null) return;
+        var spans = {};
+        aeSpans.forEach(function(term) {
+            if (term.id == null) return;
+            if (term.operator != null) return;  // operators don't matter here
+            if (spans[term.id] == null) spans[term.id] = [];
+            spans[term.id].push(term.span);
+        });
+        for (var itemId in spans) {
+            if (spans.hasOwnProperty(itemId)) {
+                applySpans(igt, itemId, spans[itemId], refAttr);
+            }
+        }
+    });
+}
+
+function applySpans(igt, itemId, spans, spanclass) {
+    var text, chars, spanOn, length;
+    selectItem(igt, itemId)
+        .classed("highlighted", true)
+        .html(function(d) {
+            text = d._cache.text || getItemContent(igt, itemId);
+            length = text.length;
+            chars = Array.apply(null, new Array(length))
+                        .map(Number.prototype.valueOf,0);
+            (spans || []).forEach(function(span) {
+                if (span == null) span = [0, length];
+                span = normRange(span[0], span[1], length);
+                for (i = span[0]; i < span[1]; i++) {
+                    chars[i] += 1;
+                }
+            });
+            spanOn = false;
+            chars = chars.map(function(c, i) {
+                var s = "";
+                if (c > 0 && !spanOn) {
+                    spanOn = true;
+                    s = "<span class=\"" + spanclass + "\">";
+                } else if (c == 0 && spanOn) {
+                    spanOn = false;
+                    s = "</span>";
+                }
+                s += text[i];
+                if (i == length-1 && spanOn) s += "</span>";
+                return s;
+            })
+            return chars.join("");
+        });
+}
+
+function normRange(start, end, length) {
+    start = start >= 0 ? start : length - start;
+    end = end >= 0 ? end : length - end;
+    if (end < start) {
+        var tmp = start;
+        start = end;
+        end = tmp;
+    }
+    return [start, end];
+}
+
+function dehighlightReferents(igt) {
+    d3.select(igt).selectAll("div.item.highlighted")
+        .text(function(d) { return d._cache.text || getItemContent(igt, d.id); })
+        .classed("highlighted", false);
+}
+
 function getItemContent(igt, itemId) {
     var item = selectItem(igt, itemId);
     var itemData = item.datum();
+    var content;
     if (itemData.text !== undefined)
-        return itemData.text;
-    if (itemData.content !== undefined)
-        return resolveAlignmentExpression(igt, itemData.content);
-    if (itemData.segmentation !== undefined)
-        return resolveAlignmentExpression(igt, itemData.segmentation);
+        content = itemData.text;
+    else if (itemData.content !== undefined)
+        content = resolveAlignmentExpression(igt, itemData.content);
+    else if (itemData.segmentation !== undefined)
+        content = resolveAlignmentExpression(igt, itemData.segmentation);
     // last resort, get the displayed text (is this a good idea?)
-    return item.text();
+    else
+        content = item.text();
+    itemData._cache.text = content;  // needs to be invalidated if it changes
+    return content;
 }
 
 function tierClasses(tier) {
@@ -82,19 +157,9 @@ function igtLayout(elemId, igtData) {
         //groups.each(function(gd) {
             d3.select(this).selectAll("div.item")
                 .data(td.items)
-                .on("mouseover", function(d) {
-                    (alignmentExpressionSpans(d.segmentation) || []).forEach(function(term) {
-                        if (term.id !== undefined) {
-                            var item = igt.select("[data-id=\"" + term.id + "\"]");
-                            item.classed("segmented", true);
-                        }
-                    });
-                })
-                .on("mouseout", function(d) {
-                    igt.selectAll(".segmented")
-                        .classed("segmented", false);
-                });
-
+                .each(function(d) { d._cache = {}; })  // setup a cache
+                .on("mouseover", function(d) { highlightReferents(elemId, d); })
+                .on("mouseout", function(d) { dehighlightReferents(elemId); });
 
             //items.append(groups.selectAll("div.item").data(gd.items));
         //});

@@ -7,5 +7,14 @@
         "phrases": "enumeration",
         "translations": "enumeration"
     },
-    "max_igts_per_page": 10
+    "max_igts_per_page": 10,
+    "reference_attributes": [
+        "alignment",
+        "segmentation",
+        "content"
+    ],
+    "alignment_expression_operators": {
+        "+": "",
+        ",": " "
+    }
 }

@@ -1,6 +1,9 @@
 
 div {
     /*border-radius: 4px;*/
+    border: solid;
+    border-width: thin;
+    border-color: transparent;
 }
 
 .igt {
@@ -41,9 +44,7 @@ div {
     display: inline-block;
     margin-top: 2px;
     background-color: #F2EBE0;
-    border: solid;
     border-color: #D0D0CC;
-    border-width: thin;
 }
 .item.enumeration { display: list-item; }
 div.interlinear div.item {
@@ -52,9 +53,7 @@ div.interlinear div.item {
     /*display: table-cell;*/
     height: 100%;
     white-space: nowrap;
-    border: solid;
-    border-width: thin;
-    border-color: #998;
+    border-color: #DDD;
     width: auto;
     padding-left: 4px;
     padding-right: 4px;
@@ -63,6 +62,16 @@ div.interlinear div.item:hover {
     border-color: #4AC;
 }
 
-.item.segmented {
-    background-color: yellow;
+div.interlinear div.item.highlighted {
+    border-color: #04F;
+}
+div.item.highlighted {
+    border-color: #00F;
+}
+
+span.segmentation {
+    background-color: #FAA;
+}
+span.alignment {
+    background-color: #FFA;
 }
