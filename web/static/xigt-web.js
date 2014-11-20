@@ -1,4 +1,28 @@
 
+function escapeId(id) {
+    /*
+    From: http://www.w3.org/TR/CSS2/syndata.html
+    In CSS, identifiers (including element names, classes, and IDs in
+    selectors) can contain only the characters [a-zA-Z0-9] and ISO 10646
+    characters U+00A0 and higher, plus the hyphen (-) and the underscore
+    (_); they cannot start with a digit, two hyphens, or a hyphen
+    followed by a digit. Identifiers can also contain escaped
+    characters and any ISO 10646 character as a numeric code (see next
+    item). For instance, the identifier "B&W?" may be written as
+    "B\&W\?" or "B\26 W\3F".
+    */
+    function escapeIdChars(id) {
+        return Array.prototype.map.call(id, function(c) {
+                return /[-_a-zA-Z0-9\u00a0-\uffff]/.test(c) ? c : "\\" + c;
+            }).join("")
+            .replace(/^(--|-?\d+)/, function(match, c, offset, s){
+                return "\\" + c.charCodeAt(0) + " " + c.slice(1);
+            });
+    }
+    if (id.slice(0,1) == "#") return "#" + escapeIdChars(id.slice(1));
+    else return escapeIdChars(id);
+}
+
 function selectItem(igt, itemId) {
     return d3.select(igt).select("[data-id=\"" + itemId + "\"]");
 }
@@ -41,7 +65,7 @@ function resolveAlignmentExpression(igt, alex) {
         } else if (aeTerm.operator == ",") {
             tokens.push(" ");
         } else {
-            var s = getItemContent(igt, aeTerm.id);
+            var s = getItemContent(igt, escapeId(aeTerm.id));
             if (aeTerm.span !== undefined) {
                 s = s.slice(aeTerm.span[0], aeTerm.span[1]);
             }
@@ -118,7 +142,9 @@ function normRange(start, end, length) {
 
 function dehighlightReferents(igt) {
     d3.select(igt).selectAll("div.item.highlighted")
-        .text(function(d) { return d._cache.text || getItemContent(igt, d.id); })
+        .text(function(d) {
+            return d._cache.text || getItemContent(igt, escapeId(d.id));
+         })
         .classed("highlighted", false);
 }
 
@@ -148,6 +174,7 @@ function tierClasses(tier) {
 }
 
 function igtLayout(elemId, igtData) {
+    elemId = escapeId(elemId);
     var igt = d3.select(elemId);
     var tiers = igt.selectAll(".tier")
         .data(igtData.tiers);
@@ -165,7 +192,7 @@ function igtLayout(elemId, igtData) {
         //});
     });
     var items = tiers.selectAll("div.item");
-    items.text(function(d) { return getItemContent(elemId, d.id); });
+    items.text(function(d) { return getItemContent(elemId, escapeId(d.id)); });
     // resize columns
     // some possibilities:
     // many to many

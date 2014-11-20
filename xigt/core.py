@@ -498,7 +498,7 @@ def alignment_closures(tiers, relations=None):
     relations = list(relations or ['alignment', 'segmentation'])
     tiers = list(tiers)
     if len(tiers) == 0:
-        return None
+        return
     tier_map = {t.id: i for i, t in enumerate(tiers) if t.id is not None}
     algns = []
     for i, t in enumerate(tiers):
@@ -527,8 +527,6 @@ def alignment_closures(tiers, relations=None):
             if num_merged == 0:
                 break
         yield [tiers[i] for i in sorted(curset)]
-
-
 
 
 def segment_tier(tier, delimiters=None, keep_delimiters=True):
