@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+stage3_lang_chosen: korean (kor)
+lang_code: korean (kor) || seoul (kor) || japanese (jpn) || inuit (ike) || french (fra) || malayalam (mal)
+note: lang_chosen_idx=0
+line=959 tag=L:   1 Nay-ka ai-eykey pap-ul mek-i-ess-ta
+line=960 tag=G:     I-Nom child-Dat rice-Acc eat-Caus-Pst-Dec
+line=961 tag=T:     `I made the child eat rice.'
+-->
+<xigt-corpus>
+  <metadata type="xigt-meta">
+    <meta type="language" name="korean" iso-639-3="kor"
+          tiers="phrases words morphemes"/>
+    <meta type="language" name="english" iso-639-3="eng"
+          tiers="glosses translations"/>
+  </metadata>
+  <igt id="i1">
+    <tier type="odin-raw" id="o">
+      <item id="o1">doc id=397 959 961 L G T</item>
+      <item id="o2">language: korean (kor)</item>
+      <item id="o3">line=959 tag=L:   1 Nay-ka ai-eykey pap-ul mek-i-ess-ta</item>
+      <item id="o4">line=960 tag=G:     I-Nom child-Dat rice-Acc eat-Caus-Pst-Dec</item>
+      <item id="o5">line=961 tag=T:     `I made the child eat rice.'</item>
+    </tier>
+    <tier type="odin-clean" id="c">
+      <item id="c1" alignment="o3" line="959" tag="L">Nay-ka ai-eykey pap-ul mek-i-ess-ta</item>
+      <item id="c2" alignment="o4" line="960" tag="G">I-Nom child-Dat rice-Acc eat-Caus-Pst-Dec</item>
+      <item id="c3" alignment="o5" line="961" tag="T">I made the child eat rice.</item>
+    </tier>
+    <!-- odin-norm is for normalizing cleaned data in order to, for example,
+         unwrap wrapped lines, or split two-column IGTs, etc. In this case,
+         nothing is done -->
+    <tier type="odin-norm" id="n">
+      <item id="n1" alignment="c1" line="959" tag="L">Nay-ka ai-eykey pap-ul mek-i-ess-ta</item>
+      <item id="n2" alignment="c2" line="960" tag="G">I-Nom child-Dat rice-Acc eat-Caus-Pst-Dec</item>
+      <item id="n3" alignment="c3" line="961" tag="T">I made the child eat rice.</item>
+    </tier>
+    <tier type="phrases" id="p" content="n">
+      <item id="p1" content="n1"/>
+    </tier>
+    <!-- if you want to tokenize things separately and later align to simple
+         IDs (where possible), then instead of this:
+    <tier type="words" id="w" segmentation="p">
+      <item id="w1" segmentation="p1[0:6]"/>
+      <item id="w2" segmentation="p1[7:15]"/>
+      <item id="w3" segmentation="p1[16:22]"/>
+      <item id="w4" segmentation="p1[23:35]"/>
+    </tier>
+      you can do this:
+    -->
+    <tier type="tokenization" id="t_w" content="n">
+      <item id="t_w1" content="n1[0:6]"/>
+      <item id="t_w2" content="n1[7:15]"/>
+      <item id="t_w3" content="n1[16:22]"/>
+      <item id="t_w4" content="n1[23:35]"/>
+    </tier>
+    <tier type="words" id="w" content="nL">
+      <item id="w1" content="t_w1"/>
+      <item id="w2" content="t_w2"/>
+      <item id="w3" content="t_w3"/>
+      <item id="w4" content="t_w4"/>
+    </tier>
+    <!-- then the morphemes tier, instead of this:
+    <tier type="morphemes" id="m" segmentation="w">
+      <item id="w1.m1" segmentation="w1[0:3]"/>
+      <item id="w1.m2" segmentation="w1[4:6]"/>
+      <item id="w2.m1" segmentation="w2[0:2]"/>
+      <item id="w2.m2" segmentation="w2[3:8]"/>
+      <item id="w3.m1" segmentation="w3[0:3]"/>
+      <item id="w3.m2" segmentation="w3[4:6]"/>
+      <item id="w4.m1" segmentation="w4[0:3]"/>
+      <item id="w4.m2" segmentation="w4[4:5]"/>
+      <item id="w4.m3" segmentation="w4[6:9]"/>
+      <item id="w4.m4" segmentation="w4[10:12]"/>
+    </tier>
+      you can do this:
+    -->
+    <tier type="tokenization" id="t_m" content="n">
+      <item id="t_m1" content="n1[0:3]"/>
+      <item id="t_m2" content="n1[4:6]"/>
+      <item id="t_m3" content="n1[7:9]"/>
+      <item id="t_m4" content="n1[10:15]"/>
+      <item id="t_m5" content="n1[16:19]"/>
+      <item id="t_m6" content="n1[20:22]"/>
+      <item id="t_m7" content="n1[23:26]"/>
+      <item id="t_m8" content="n1[27:28]"/>
+      <item id="t_m9" content="n1[29:32]"/>
+      <item id="t_m10" content="n1[33:35]"/>
+    </tier>
+    <tier type="morphemes" id="m" segmentation="w">
+      <item id="w1.m1" alignment="w1[0:3]" content="t_m1"/>
+      <item id="w1.m2" alignment="w1[4:6]" content="t_m2"/>
+      <item id="w2.m1" alignment="w2[0:2]" content="t_m3"/>
+      <item id="w2.m2" alignment="w2[3:8]" content="t_m4"/>
+      <item id="w3.m1" alignment="w3[0:3]" content="t_m5"/>
+      <item id="w3.m2" alignment="w3[4:6]" content="t_m6"/>
+      <item id="w4.m1" alignment="w4[0:3]" content="t_m7"/>
+      <item id="w4.m2" alignment="w4[4:5]" content="t_m8"/>
+      <item id="w4.m3" alignment="w4[6:9]" content="t_m9"/>
+      <item id="w4.m4" alignment="w4[10:12]" content="t_m10"/>
+    </tier>
+    <!-- and for the glosses tier, instead of this:
+    <tier type="glosses" id="g" alignment="m" content="c">
+      <item id="w1.g1" alignment="w1.m1" content="c2[0:1]"/>
+      <item id="w1.g2" alignment="w1.m2" content="c2[2:5]"/>
+      <item id="w2.g1" alignment="w2.m1" content="c2[6:11]"/>
+      <item id="w2.g2" alignment="w2.m2" content="c2[12:15]"/>
+      <item id="w3.g1" alignment="w3.m1" content="c2[16:20]"/>
+      <item id="w3.g2" alignment="w3.m2" content="c2[21:24]"/>
+      <item id="w4.g1" alignment="w4.m1" content="c2[25:28]"/>
+      <item id="w4.g2" alignment="w4.m2" content="c2[29:33]"/>
+      <item id="w4.g3" alignment="w4.m3" content="c2[34:37]"/>
+      <item id="w4.g4" alignment="w4.m4" content="c2[38:41]"/>
+    </tier>
+      you can have this:
+    -->
+    <tier type="tokenization" id="t_g" content="n">
+      <item id="t_g1" content="n2[0:1]"/>
+      <item id="t_g2" content="n2[2:5]"/>
+      <item id="t_g3" content="n2[6:11]"/>
+      <item id="t_g4" content="n2[12:15]"/>
+      <item id="t_g5" content="n2[16:20]"/>
+      <item id="t_g6" content="n2[21:24]"/>
+      <item id="t_g7" content="n2[25:28]"/>
+      <item id="t_g8" content="n2[29:33]"/>
+      <item id="t_g9" content="n2[34:37]"/>
+      <item id="t_g10" content="n2[38:41]"/>
+    </tier>
+    <tier type="glosses" id="g" alignment="m" content="nG">
+      <item id="w1.g1" alignment="w1.m1" content="t_g1"/>
+      <item id="w1.g2" alignment="w1.m2" content="t_g2"/>
+      <item id="w2.g1" alignment="w2.m1" content="t_g3"/>
+      <item id="w2.g2" alignment="w2.m2" content="t_g4"/>
+      <item id="w3.g1" alignment="w3.m1" content="t_g5"/>
+      <item id="w3.g2" alignment="w3.m2" content="t_g6"/>
+      <item id="w4.g1" alignment="w4.m1" content="t_g7"/>
+      <item id="w4.g2" alignment="w4.m2" content="t_g8"/>
+      <item id="w4.g3" alignment="w4.m3" content="t_g9"/>
+      <item id="w4.g4" alignment="w4.m4" content="t_g10"/>
+    </tier>
+    <tier type="translations" id="t" alignment="p" content="n">
+      <item id="t0" alignment="p1" content="n3"/>
+    </tier>
+  </igt>
+</xigt-corpus>

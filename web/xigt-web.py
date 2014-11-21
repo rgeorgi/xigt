@@ -5,6 +5,7 @@ import json
 from xigt.codecs import xigtxml
 from xigt.views import item_groups
 from flask import Flask, flash, request, render_template, url_for
+from os import path
 
 app = Flask(__name__)
 with open('config.json') as f:
@@ -42,6 +43,18 @@ def make_igt_object(igt):
 
 @app.route('/')
 def browse_corpus():
+    igts = list(xc.igts)
+    igt_objs = map(make_igt_object, igts)
+    return render_template('browse.html', igts=igt_objs, settings=settings)
+
+@app.route('/corpus/<filename>')
+def browse_example_corpus(filename):
+    p = path.join('../examples/odin/{}'.format(filename))
+    if not path.isfile(p):
+        p = path.join('../examples/abkhaz/{}'.format(filename))
+    if not path.isfile(p):
+        return ""
+    xc = xigtxml.load(open(p, 'r'))
     igts = list(xc.igts)
     igt_objs = map(make_igt_object, igts)
     return render_template('browse.html', igts=igt_objs, settings=settings)
