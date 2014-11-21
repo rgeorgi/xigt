@@ -15,7 +15,7 @@ with open('config.json') as f:
     # environment vars
 #))
 
-xc = xigtxml.load(open(sys.argv[1], 'r'))
+xc = None
 
 def make_item_object(item):
     obj = {'id': item.id}
@@ -43,6 +43,8 @@ def make_igt_object(igt):
 
 @app.route('/')
 def browse_corpus():
+    if xc is None:
+        return ''
     igts = list(xc.igts)
     igt_objs = map(make_igt_object, igts)
     return render_template('browse.html', igts=igt_objs, settings=settings)
