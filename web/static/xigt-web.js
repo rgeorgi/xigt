@@ -75,7 +75,7 @@ function resolveAlignmentExpression(igt, alex) {
     return tokens.join("");
 }
 
-function highlightReferents(igt, d) {
+function highlightReferents(igt, d, direct) {
     (settings.reference_attributes || []).forEach(function(refAttr) {
         if (d[refAttr] == null) return;
         aeSpans = alignmentExpressionSpans(d[refAttr]);
@@ -89,16 +89,17 @@ function highlightReferents(igt, d) {
         });
         for (var itemId in spans) {
             if (spans.hasOwnProperty(itemId)) {
-                applySpans(igt, itemId, spans[itemId], refAttr);
+                applySpans(igt, itemId, spans[itemId], refAttr, direct);
             }
+
         }
     });
 }
 
-function applySpans(igt, itemId, spans, spanclass) {
+function applySpans(igt, itemId, spans, spanclass, direct) {
     var text, chars, spanOn, length;
     selectItem(igt, itemId)
-        .classed("highlighted", true)
+        .classed({"inherited": true, "referenced": direct})
         .html(function(d) {
             text = d._cache.text || getItemContent(igt, itemId);
             length = text.length;
@@ -126,7 +127,8 @@ function applySpans(igt, itemId, spans, spanclass) {
                 return s;
             })
             return chars.join("");
-        });
+        })
+        .each(function(d) { highlightReferents(igt, d, false); });
 }
 
 function normRange(start, end, length) {
@@ -141,11 +143,11 @@ function normRange(start, end, length) {
 }
 
 function dehighlightReferents(igt) {
-    d3.select(igt).selectAll("div.item.highlighted")
+    d3.select(igt).selectAll("div.item.inherited")
         .text(function(d) {
             return d._cache.text || getItemContent(igt, escapeId(d.id));
          })
-        .classed("highlighted", false);
+        .classed({"inherited": false, "referenced": false});
 }
 
 function getItemContent(igt, itemId) {
@@ -185,7 +187,7 @@ function igtLayout(elemId, igtData) {
             d3.select(this).selectAll("div.item")
                 .data(td.items)
                 .each(function(d) { d._cache = {}; })  // setup a cache
-                .on("mouseover", function(d) { highlightReferents(elemId, d); })
+                .on("mouseover", function(d) { highlightReferents(elemId, d, true); })
                 .on("mouseout", function(d) { dehighlightReferents(elemId); });
 
             //items.append(groups.selectAll("div.item").data(gd.items));
@@ -193,16 +195,4 @@ function igtLayout(elemId, igtData) {
     });
     var items = tiers.selectAll("div.item");
     items.text(function(d) { return getItemContent(elemId, escapeId(d.id)); });
-    // resize columns
-    // some possibilities:
-    // many to many
-    // many to none
-    // none to many
-    // var interlinearTierIds = []
-    // igt.selectAll("tier.interlinear").each(function(d){
-    //     interlinearTierIds.push(d.id);
-    // });
-    // var sizeAffects = {};
-    // var sizeDepends = {};
-
 }

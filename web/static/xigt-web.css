@@ -46,7 +46,7 @@ div {
     background-color: #F2EBE0;
     border-color: #D0D0CC;
 }
-.item.enumeration { display: list-item; }
+div.enumeration div.item { display: list-item; }
 div.interlinear div.item {
     position: relative;
     /*float: left;*/
@@ -61,16 +61,19 @@ div.interlinear div.item:hover {
     border-color: #4AC;
 }
 
-div.interlinear div.item.highlighted {
+div.interlinear div.item.referenced {
     border-color: #04F;
 }
-div.item.highlighted {
+div.item.referenced {
     border-color: #00F;
 }
 
-span.segmentation {
-    background-color: #FAA;
-}
 span.alignment {
     background-color: #FFA;
+}
+span.content {
+    background-color: #FAA;
+}
+span.segmentation {
+    background-color: #AFA;
 }
