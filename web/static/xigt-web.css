@@ -68,12 +68,16 @@ div.item.referenced {
     border-color: #00F;
 }
 
-span.alignment {
+
+div.item span {
+    background-color: #CDF;
+}
+div.item span.alignment {
     background-color: #FFA;
 }
-span.content {
+div.item span.content {
     background-color: #FAA;
 }
-span.segmentation {
+div.item span.segmentation {
     background-color: #AFA;
 }
