@@ -30,6 +30,17 @@ function selectItem(igt, itemId) {
 var algnexprRe = /([a-zA-Z][\-.\w]*)(\[[^\]]*\])?|\+|,/g;
 var spanRe = /-?\d+:-?\d+|\+|,/g;
 
+function alignmentExpressionIds(alex) {
+    var ids = [], aeMatch;
+    while ((aeMatch = algnexprRe.exec(alex)) !== null) {
+        var aeFull = aeMatch[0],
+            aeId = aeMatch[1],
+            aeSpans = aeMatch[2];
+        if (aeId) ids.push(aeId);
+    }
+    return ids;
+}
+
 function alignmentExpressionSpans(alex) {
     var spans = [], aeMatch, spanMatch;
     while ((aeMatch = algnexprRe.exec(alex)) !== null) {
@@ -175,24 +186,110 @@ function tierClasses(tier) {
     return classes;
 }
 
+function interlinearTierGroups(igtData) {
+    var groups = [], curgroup = [];
+    igtData.tiers.forEach(function(t) {
+        var algntgt = t.alignment || t.segmentation;
+        var ingroup = curgroup.length == 0;  // always true for empty curgroup
+        if (algntgt) {
+            for (i=0; i<curgroup.length; i++) {
+                if (curgroup[i].id == algntgt) ingroup = true;
+            }
+        }
+        if (t.class == "interlinear" && ingroup) {
+            curgroup.push(t);
+        } else {
+            if (curgroup.length) groups.push(curgroup);
+            curgroup = [];
+            groups.push([t]);
+        }
+    })
+    if (curgroup.length) groups.push(curgroup);
+    return groups;
+}
+
+function matchColumns(src, tgt) {
+    var srcIdx = 0; tgtIdx = 0, cols = [];
+    while (srcIdx < src.items.length) {
+        var tgtIds = alignmentExpressionIds(src.alignment || src.segmentation);
+        if (! cols.length) {
+            algn = {"source": [src.items[srcIdx]], "target": []};
+
+            cols.push(algn)
+        }
+        srcIdx += 1;
+    }
+}
+
+function interlinearItemGroups(tgroup) {
+    var igroups = [], idIdx = {}, maxCols = -1;
+    // map each tier id (if given) to its index in the tiergroup
+    for (i=0; i<tgroup.length; i++) { depthMap[tgroup[i].id] = i; }
+    // find the tier requiring the fewest columns; these will be the outer divs
+    for (i=0; i<tgroup.length; i++) {
+        var tier = tgroup[i], igroup = [];
+        // for ()
+    }
+    var revAlgnMap = {};
+    // tgroup.forEach(function(t) {
+    //     t.items.forEach(function(i) {
+
+    //     });
+    // });
+    // makeColumn = function() {
+    //     var col = [];
+    //     for (i=0; i<tgroups.length; i++) col.push([]);
+    //     return col;
+    // }
+    // var depthMap = {}, indices=[], revAlgnMap = {}, root = 0;
+    // for (i=0; i<tgroups.length; i++) {
+    //     var t = tgroups[i];
+    //     depthMap[t.id] = i;  // doesn't matter if a source tier has no id?
+    //     indices[i] = 0;
+    //     if (t.alignment) { }
+    //     if (! (t.alignment || t.segmentation)) root = i;
+    // }
+    // var trellis = [];
+    // var t = tgroups[root];
+    // for (i=0; i<t.items.length; i++) {
+    //     trellis.push(makeColumn());
+    //     trellis[i][0].push(t.items[i]);
+    // }
+    // // done setting up; now to do real work
+    // for (i=0; i<tgroups.length; i++) {
+
+    // }
+    // return trellis;
+}
+
 function igtLayout(elemId, igtData) {
     elemId = escapeId(elemId);
     var igt = d3.select(elemId);
-    var tiers = igt.selectAll(".tier")
-        .data(igtData.tiers);
-    tiers.each(function(td) {
+    var tgroups = interlinearTierGroups(igtData);
+    //var igroups = interlinearItemGroups(tgroups);
+    var tiergroups = igt.selectAll(".tiergroup")
+        .data(tgroups)
+      .enter().append('div')
+        .classed('tiergroup', true);
+    var tiers = tiergroups.selectAll(".tier")
+        .data(function(d) { return d; })
+      .enter().append("div")
+        .classed("tier", true);
+    //var tiers = tiergroups.selectAll(".tier")
+    //    .data(igtData.tiers);
+    //tiers.each(function(td) {
         //var groups = d3.select(this).selectAll("div.tier-content div.column")
         //    .data(td.groups);
         //groups.each(function(gd) {
-            d3.select(this).selectAll("div.item")
-                .data(td.items)
-                .each(function(d) { d._cache = {}; })  // setup a cache
-                .on("mouseover", function(d) { highlightReferents(elemId, d, true); })
-                .on("mouseout", function(d) { dehighlightReferents(elemId); });
+    //        d3.select(this).selectAll("div.item")
+    //            .data(td.items)
+    //            .each(function(d) { d._cache = {}; })  // setup a cache
+    //            .on("mouseover", function(d) { highlightReferents(elemId, d, true); })
+    //            .on("mouseout", function(d) { dehighlightReferents(elemId); });
 
             //items.append(groups.selectAll("div.item").data(gd.items));
         //});
-    });
-    var items = tiers.selectAll("div.item");
-    items.text(function(d) { return getItemContent(elemId, escapeId(d.id)); });
+    //});
+    //var items = tiers.selectAll("div.item");
+    //items.text(function(d) { return getItemContent(elemId, escapeId(d.id)); });
 }

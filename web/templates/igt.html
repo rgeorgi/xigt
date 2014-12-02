@@ -1,5 +1,6 @@
 {% set igtId = igt.id|safe %}
 <div class="igt" id="{{ igtId }}">
+{#
 {% for tier in igt.tiers %}
   <div class="tier {{ tier.class }}">
     <div class="tier-header">{{ tier.type|safe }}</div>
@@ -8,5 +9,6 @@
     </div>
   </div>
 {% endfor %}
+#}
 </div>
 <script>igtLayout("#{{ igtId }}", {{ igt|tojson|safe }});</script>

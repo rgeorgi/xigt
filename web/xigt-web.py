@@ -27,17 +27,14 @@ def make_item_object(item):
 def make_igt_object(igt):
     tiers = []
     for tier in igt.tiers:
-        tier_obj = {
-            'id': tier.id,
-            'type': tier.type,
-            'items': [make_item_object(i) for i in tier.items],
-            # 'groups': [{'ids': ig[0] or None,
-            #             'items': [make_item_object(i) for i in ig[1]]}
-            #            for ig in item_groups(tier)],
-            'class': settings.get('tier_classes', {}).get(
-                tier.type, settings.get('default_tier_class', '')
-            )
-        }
+        tier_obj = tier.attributes
+        tier_obj['id'] = tier.id
+        tier_obj['type'] = tier.type
+        tier_obj['items'] = [make_item_object(i) for i in tier.items]
+        tier_obj['class'] = settings.get('tier_classes', {}).get(
+                tier.type,
+                settings.get('default_tier_class', '')
+        )
         tiers.append(tier_obj)
     return {'id': igt.id, 'tiers': tiers}
 
