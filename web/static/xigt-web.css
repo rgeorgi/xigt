@@ -13,20 +13,34 @@ div {
     border-spacing: 5px;
 }
 
-.tier {
+.tiergroup {
     display: table-row;
-    width: auto;
 }
 
-.tier-header {
+.tiergroup-header {
     display: table-row-header;
     height: 100%;
 }
-.tier-content {
+.tiergroup-content {
     display: table-cell;
     position: relative;
 }
+
+.tier-label {
+
+}
+
+div.itemgroup div.row {
+    display: inline-block;
+}
+
+div.itemgroup div.col {
+    display: block;
+}
+
 .tier.enumeration { list-style-type: none; }
+div.enumeration div.item { display: list-item; }
+
 .tier.interlinear { display: table-row; }
 
 .item {
@@ -46,7 +60,6 @@ div {
     background-color: #F2EBE0;
     border-color: #D0D0CC;
 }
-div.enumeration div.item { display: list-item; }
 div.interlinear div.item {
     position: relative;
     /*float: left;*/
