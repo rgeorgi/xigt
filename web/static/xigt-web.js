@@ -206,9 +206,48 @@ function tierClasses(tier) {
 
 */
 
+function mergeColumns(c1, c2) {
+    var children = [], left, right;
+    for (i=0; i<c1.children.length; i++) {
+        left = c1.children[i]; right = c2.children[i];
+        if (left.class != "row") left = {"class": "row", "children": [left]};
+        if (right.class != "row") right = {"class": "row", "children": [right]};
+        children.push(Array.prototype.push.apply(left, right));
+    }
+    c1.children = children;
+    return c1;
+}
+
+function hasIntersection(s1, s2) {
+    for (i=0; i<s1.length; i++) {
+        for (j=0; j<s2.length; j++) {
+            if (s1[i] == s2[j]) return true;
+        }
+    }
+    return false;
+}
+
+function collectGroupedItems(items) {
+    var curIds = [], itemIds, groups = [], curgrp;
+    items.forEach(function(item) {
+        itemIds = alignmentExpressionIds(item.alignment || item.segmentation);
+        if (curIds.length && itemIds && hasIntersection(curIds, itemIds)) {
+            curIds = Array.prototype.push.apply(curIds, itemIds);
+            curgrp = groups[groups.length-1];
+            curgrp.items.push(item);
+            curgrp.targets = curIds;
+        } else {
+            curIds = itemIds || [];
+            groups.push({"items": [item], "targets": [curIds]);
+        }
+    });
+    return groups;
+}
+
 function interlinearizeTier(tg, t) {
     var children = [];
-    t.items.forEach(function(item, i) {
+    var srcItemGroups = collectGroupedItems(t.items);
+    srcItemGroups.forEach(function(ig, i) {
 
     });
     return tg;
@@ -226,9 +265,7 @@ function computeTierGroups(igtData) {
             groups[groups.length -1].tiers.push(t);
         } else {
             igroups = t.items.map(function(item) {
-                    return {"class": "col",
-                            "depth": 1,
-                            "children": [{"class": "item", "item": item}]};
+                return {"class": "item", "item": item};
             });
             groups.push({"tiers": [t], "class": t.class, "children": igroups});
             curIds = [];
@@ -239,135 +276,22 @@ function computeTierGroups(igtData) {
     return groups;
 }
 
-
-// function interlinearTierGroups(igtData) {
-//     var groups = [], curgroup = [];
-//     igtData.tiers.forEach(function(t) {
-//         var algntgt = t.alignment || t.segmentation;
-//         var ingroup = curgroup.length == 0;  // always true for empty curgroup
-//         if (algntgt) {
-//             for (i=0; i<curgroup.length; i++) {
-//                 if (curgroup[i].id == algntgt) ingroup = true;
-//             }
-//         }
-//         if (t.class == "interlinear" && ingroup) {
-//             curgroup.push(t);
-//         } else {
-//             if (curgroup.length) groups.push(buildItemGroups(curgroup));
-//             curgroup = [];
-//             groups.push(buildItemGroups([t]));
-//         }
-//     })
-//     if (curgroup.length) groups.push(buildItemGroups(curgroup));
-//     return groups;
-// }
-
-// function buildItemGroups(i, idx, tgroup) {
-    
-//         Group those that overlap (share an ID). E.g.
-//             1  2  3  4  5
-//             a: [1, 2]; b: [2, 4]; c: [3]; d: [2, 4]; e: [4, 5]
-//         This would have 3 groups:
-//           [a, b]: [1, 2, 4]
-//           [c] : [3]
-//           [d, e] : [2, 4, 5]
-//         In b's case, 4 is not considered because it is not contiguous with the
-//         matched alignments. In d's case, it doesn't group with b because they
-//         aren't adjacent, but it does group with e. If we pull out c and 3, we
-//         would have 1 group: [a, b, d, e] : [1, 2, 4, 5]
-    
-//     var src = tgroup[i], tgt = idx[()];
-//     var tgtIdMap = {};
-//     for (i=0; i<tgt.items.length; i++) tgtIdMap[tgt.items[i].id] = i;
-//     var srcIdx = 0; tgtIdx = 0, cols = [];
-//     while (srcIdx < src.items.length) {
-//         var item = src.items[srcIdx];
-//         var tgtIds = alignmentExpressionIds(src.alignment || src.segmentation);
-//         var min = d3.min(tgtIds), max = d3.max(tgtIds);
-//         if (cols.length) {
-//             cols.push({"source": [item], "target": tgtIds});
-//         } else
-//         srcIdx += 1;
-//     }
-// }
-
-// function interlinearItemGroups(tgroup) {
-//     // assumptions:
-//     //  * root tier (that doesn't align to any other in tgroup) is first tier
-//     //  * there will be exactly one "root" tier
-//     //  * all subsequent tiers align to tiers above them
-//     var idx, groups;
-//     for (i=0; i<tgroup.length; i++) {
-//         if (! (tgroup[i].alignment || tgroup[i].segmentation)) root = i;
-//     }
-//     idx = tgroup.reduce(
-//         function(o, t, i) {
-//             o[t.id] = {
-//                 "index": i,
-//                 "target": t.alignment || t.segmentation,
-//                 "targetOf": []
-//             }
-//             return o;
-//         }, {});
-//     tgroup.forEach(function(t) {
-//         var tgt = t.alignment || t.segmentation;
-//         if (tgt !== undefined) idx[tgt].targetOf.push(t.id)
-//     });
-//     groups = buildGroups(i, idx, tgroup);
-
-//     var igroups = [], maxCols = -1;
-
-//     var alnIdx = tgroup.reduce(function(o, t, i) {})
-
-//     for (i=0; i<tgroup.items.length; i++) { idIdx[tgroup.items[i].id] = i; }
-//     // map each tier id (if given) to its index in the tiergroup
-//     for (i=0; i<tgroup.length; i++) { depthMap[tgroup[i].id] = i; }
-//     // find the tier requiring the fewest columns; these will be the outer divs
-//     for (i=0; i<tgroup.length; i++) {
-//         var tier = tgroup[i], igroup = [];
-//         // for ()
-//     }
-//     var revAlgnMap = {};
-//     // tgroup.forEach(function(t) {
-//     //     t.items.forEach(function(i) {
-
-//     //     });
-//     // });
-//     // makeColumn = function() {
-//     //     var col = [];
-//     //     for (i=0; i<tgroups.length; i++) col.push([]);
-//     //     return col;
-//     // }
-//     // var depthMap = {}, indices=[], revAlgnMap = {}, root = 0;
-//     // for (i=0; i<tgroups.length; i++) {
-//     //     var t = tgroups[i];
-//     //     depthMap[t.id] = i;  // doesn't matter if a source tier has no id?
-//     //     indices[i] = 0;
-//     //     if (t.alignment) { }
-//     //     if (! (t.alignment || t.segmentation)) root = i;
-//     // }
-//     // var trellis = [];
-//     // var t = tgroups[root];
-//     // for (i=0; i<t.items.length; i++) {
-//     //     trellis.push(makeColumn());
-//     //     trellis[i][0].push(t.items[i]);
-//     // }
-//     // // done setting up; now to do real work
-//     // for (i=0; i<tgroups.length; i++) {
-
-//     // }
-//     // return trellis;
-// }
-
 function populateItemGroup(ig, igData) {
-    if (!igData.children.length) {
-
-    } else {
-        for (i=0; i<igData.children.length; i++) {
-
-            populateItemGroup(ig.append())
-        }
+    if (igData.class == "item") {
+        ig.selectAll(".item")
+            .data([igData.item])
+          .enter().append("div")
+            .classed("item", true)
+            .attr("data-id", function(d) { return d.id; });
     }
+    // if (!igData.children.length) {
+
+    // } else {
+    //     for (i=0; i<igData.children.length; i++) {
+
+    //         populateItemGroup(ig.append())
+    //     }
+    // }
 }
 
 function populateTierGroup(tg, tgData) {
@@ -397,6 +321,9 @@ function igtLayout(elemId, igtData) {
       .enter().append('div')
         .classed('tiergroup', true)
         .each(function(d) { populateTierGroup(d3.select(this), d); });
+    igt.selectAll("div.itemgroup div.item")
+        .each(function(d) { d._cache = {}; })
+        .text(function(d) { return getItemContent(elemId, escapeId(d.id));});
     // var tiers = tiergroups.selectAll(".tier")
     //     .data(function(d) { return d; })
     //   .enter().append("div")

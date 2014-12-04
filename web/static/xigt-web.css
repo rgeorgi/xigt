@@ -30,12 +30,16 @@ div {
 
 }
 
-div.itemgroup div.row {
+div.itemgroup {
     display: inline-block;
 }
 
-div.itemgroup div.col {
+div.itemgroup div.row {
     display: block;
+}
+
+div.itemgroup div.col {
+    display: inline-block;
 }
 
 .tier.enumeration { list-style-type: none; }
