@@ -206,19 +206,37 @@ function tierClasses(tier) {
 
 */
 
+function containedIds(obj) {
+    var ids = [], subIds;
+    if (obj.class == "item" && item.id)
+        ids.push(item.id);
+    else {
+        obj.children.forEach(function (c) {
+            subIds = containedIds(c);
+            ids = ids.concat(subIds);
+        })
+    }
+    return ids;
+}
+
 function mergeColumns(c1, c2) {
-    var children = [], left, right;
-    for (i=0; i<c1.children.length; i++) {
-        left = c1.children[i]; right = c2.children[i];
+    var children = [],
+        depth = d3.max([c1.children.length, c2.children.length]),
+        left, right;
+    for (i=0; i<depth; i++) {
+        left = c1.children[i] || {"class": "row", "children": []};
+        right = c2.children[i] || {"class": "row", "children": []};
         if (left.class != "row") left = {"class": "row", "children": [left]};
         if (right.class != "row") right = {"class": "row", "children": [right]};
-        children.push(Array.prototype.push.apply(left, right));
+        children.push(left.concat(right));
     }
     c1.children = children;
+    c1.ids = c1.ids.concat(c2.ids)
     return c1;
 }
 
 function hasIntersection(s1, s2) {
+    var i, j;
     for (i=0; i<s1.length; i++) {
         for (j=0; j<s2.length; j++) {
             if (s1[i] == s2[j]) return true;
@@ -227,48 +245,151 @@ function hasIntersection(s1, s2) {
     return false;
 }
 
+function findColSpan(ig, cols, offset) {
+    var start = -1, end = -1, i;
+    for (i=offset; i<cols.length; i++) {
+        if (hasIntersection(ig.targets, cols[i].ids || [])) {
+            start = i; break;
+        }
+    }
+    if (start < 0)
+        return null;
+    for (i=start+1; i<cols.length; i++) {
+        if (hasIntersection(ig.targets, cols[i].ids || [])) end = i;
+        else break;
+    }
+    return {"start": start, "end": end}
+}
+
 function collectGroupedItems(items) {
     var curIds = [], itemIds, groups = [], curgrp;
     items.forEach(function(item) {
         itemIds = alignmentExpressionIds(item.alignment || item.segmentation);
         if (curIds.length && itemIds && hasIntersection(curIds, itemIds)) {
-            curIds = Array.prototype.push.apply(curIds, itemIds);
+            curIds = curIds.concat(itemIds);
             curgrp = groups[groups.length-1];
             curgrp.items.push(item);
             curgrp.targets = curIds;
         } else {
             curIds = itemIds || [];
-            groups.push({"items": [item], "targets": [curIds]);
+            groups.push({"items": [item], "targets": d3.set(curIds)});
         }
     });
     return groups;
 }
 
-function interlinearizeTier(tg, t) {
-    var children = [];
-    var srcItemGroups = collectGroupedItems(t.items);
-    srcItemGroups.forEach(function(ig, i) {
+function interlinearizeItems(cols, ig, depth) {
+    var i, span, maxDepth, colChild, subCols;
+    while (cols.length > 1) {
+        cols = [mergeColumns(cols[0], cols[1])].concat(cols.slice(2));
+    }
+    // from here cols is a single column
+    cols = cols[0];
+    // Now find the proper depth; depth is the number of rows in columns,
+    // not nesting depth.
+    for (i=0; i<depth; i++) {
+        colChild = cols.children[i];
+        if (colChild === undefined)
+            cols.children[i] = emptyRow();
+        else if (colChild.class == "row") {
+            subCols = colChild.children;
+            span = findColSpan(ig, subCols, 0);
+            if (span !== null) {
+                // do some recursive surgery to insert the new items
+                cols.children[i] = (
+                    subCols.slice(0, span.start) +
+                    interlinearizeItems(
+                        subCols.slice(span.start, span.end), ig, depth
+                    ) +
+                    subCols.slice(span.end)
+                )
+            }
+            maxDepth = 
+        }
+    }
+    return cols;
+    // if (depth <= 0) {
+    //     cols
+    // }
+}
 
+function emptyRow() { return {"class": "row", "ids": [], "children": []}; }
+
+function fillItemGroup(obj, depth) {
+    var ig = [];
+    for (i=0; i<depth-1; i++) ig.push(emptyRow());
+    ig.push(obj);
+    return ig;
+}
+
+function interlinearizeTier(tg, t, depth) {
+    var children = [],
+        tgIdx = 0,
+        delay = [],
+        colspan, curIds;
+    (collectGroupedItems(t.items) || []).forEach(function(ig, i) {
+        colspan = findColSpan(ig, tg, tgIdx);
+        if (colspan !== null) {
+            // first catch up to the next index by padding and undelaying
+            while (tgIdx < colspan.start) {
+                children.push(interlinearizeItems(
+                    tg[tgIdx], {"items": [], "targets": []}, depth
+                ));
+                tgIdx += 1;
+            }
+            while (delay.length)
+                children.push(fillItemGroup(delay.shift(), depth));
+            // now add new items (align to as many columns as necessary)
+            children.push(interlinearizeItems(
+                tg.slice(colspan.start, colspan.end), ig, depth
+            ));
+            tgIdx = colspan.end;
+        } else {
+            delay.push(ig);
+        }
     });
-    return tg;
+    // If there's any remaining or delayed items, add them
+    while (tgIdx < tg.length) {
+        children.push(interlinearizeItems(tg[tgIdx], [], depth));
+        tgIdx += 1;
+    }
+    while (delay.length) children.push(fillItemGroup(delay.shift(), depth));
+
+    return children;
 }
 
 function computeTierGroups(igtData) {
-    var groups = [], prevClass, curIds = [], igroups;
+    var groups = [],
+        curIds = [],
+        depthCtr = {}, newDepth,
+        prevClass, igroups, algnTgt;
     igtData.tiers.forEach(function(t) {
-        var algnTgt = t.alignment || t.segmentation;
+        igroups = null;
+        algnTgt = t.alignment || t.segmentation;
         if (t.class == "interlinear"
                 && prevClass == "interlinear"
                 && curIds.indexOf(algnTgt) >= 0) {
-            igroups = groups[groups.length -1].children;
-            groups[groups.length -1].children = interlinearizeTier(igroups, t)
-            groups[groups.length -1].tiers.push(t);
-        } else {
+            newDepth = depthCtr[algnTgt] + 1;
+            igroups = interlinearizeTier(
+                groups[groups.length-1].children, t, newDepth
+            );
+            if (igroups) {
+                groups[groups.length-1].children = igroups;
+                groups[groups.length-1].tiers.push(t);
+                depthCtr[t.id] = newDepth;
+            }
+        }
+        // igroups can be null if the tier isn't interlinear or if
+        // interlinearization failed
+        if (!igroups) {
             igroups = t.items.map(function(item) {
-                return {"class": "item", "item": item};
+                return {"class": "item", "ids": [item.id], "item": item};
             });
-            groups.push({"tiers": [t], "class": t.class, "children": igroups});
+            groups.push({"tiers": [t],
+                         "ids": igroups.map(function(ig) { return ig.ids; }),
+                         "class": t.class, "children": igroups});
             curIds = [];
+            depthCtr[t.id] = 1;
         }
         prevClass = t.class;
         if (t.id) curIds.push(t.id)
