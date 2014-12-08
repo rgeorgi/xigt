@@ -39,7 +39,6 @@ div.itemgroup div.row {
 }
 
 div.itemgroup div.col {
-    border: solid;
     display: inline-block;
 }
 
@@ -59,7 +58,7 @@ div.enumeration div.item { display: list-item; }
     background-color: #4AC;
     color: #FFF;
 }
-.column {
+div.interlinear div.col {
     display: inline-block;
     margin-top: 2px;
     background-color: #F2EBE0;
