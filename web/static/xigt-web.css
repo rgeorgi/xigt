@@ -26,7 +26,7 @@ div {
     position: relative;
 }
 
-.tier-label {
+div.tiergroup-header div.tier {
 
 }
 
@@ -39,6 +39,7 @@ div.itemgroup div.row {
 }
 
 div.itemgroup div.col {
+    border: solid;
     display: inline-block;
 }
 

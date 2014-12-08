@@ -206,33 +206,78 @@ function tierClasses(tier) {
 
 */
 
-function containedIds(obj) {
-    var ids = [], subIds;
-    if (obj.class == "item" && item.id)
-        ids.push(item.id);
-    else {
-        obj.children.forEach(function (c) {
-            subIds = containedIds(c);
-            ids = ids.concat(subIds);
+// function containedIds(obj) {
+//     var ids = [], subIds;
+//     if (obj.class == "item" && item.id)
+//         ids.push(item.id);
+//     else {
+//         obj.children.forEach(function (c) {
+//             subIds = containedIds(c);
+//             ids = ids.concat(subIds);
+//         })
+//     }
+//     return ids;
+// }
+
+function getTierClass(t) {
+    return settings.tier_classes[t.type] || settings.default_tier_class;
+}
+
+function getContainedIds(col) {
+    var ids = [];
+    if (col.id) ids.push(col.id);
+    (col.children || []).forEach(function(row) {
+        row.forEach(function(subcol) {
+            ids = ids.concat(subcol.ids);
         })
-    }
+    });
     return ids;
 }
 
-function mergeColumns(c1, c2) {
-    var children = [],
-        depth = d3.max([c1.children.length, c2.children.length]),
-        left, right;
-    for (i=0; i<depth; i++) {
-        left = c1.children[i] || {"class": "row", "children": []};
-        right = c2.children[i] || {"class": "row", "children": []};
-        if (left.class != "row") left = {"class": "row", "children": [left]};
-        if (right.class != "row") right = {"class": "row", "children": [right]};
-        children.push(left.concat(right));
-    }
-    c1.children = children;
-    c1.ids = c1.ids.concat(c2.ids)
-    return c1;
+function getContainedTierIds(col) {
+    var ids = [];
+    if (col.tierId) ids.push(col.tierId);
+    (col.children || []).forEach(function(row) {
+        row.forEach(function(subcol) {
+            ids = ids.concat(subcol.tierIds);
+        })
+    });
+    return d3.set(ids).values();
+}
+
+
+function mergeColumns(cols) {
+    // make a new column that contains cols on the first row
+    var col = {"children": [cols]};
+    col.ids = getContainedIds(col);
+    col.tierIds = getContainedTierIds(col);
+    return col;
+        // "ids": getContainedIds(cols.reduce(
+        //     function(ids, col) {
+        //         if (col.id) ids.push(col.id);
+        //         if (col.ids) ids = ids.concat(col.ids);
+        //         return ids;
+        //     }, []
+        // ),
+        // "tierIds": cols.reduce(
+        //     function(ids, col) {
+        //         if (col.tierId) ids.push(col.tierId);
+        //         if (col.tierIds) ids = ids.concat(col.tierIds);
+        //         return ids;
+        //     }, []
+        // ),
+
+    // var children = [],
+    // for (i=0; i<depth; i++) {
+    //     left = c1.children[i] || {"class": "row", "children": []};
+    //     right = c2.children[i] || {"class": "row", "children": []};
+    //     if (left.class != "row") left = {"class": "row", "children": [left]};
+    //     if (right.class != "row") right = {"class": "row", "children": [right]};
+    //     children.push(left.concat(right));
+    // }
+    // c1.children = children;
+    // c1.ids = c1.ids.concat(c2.ids)
+    // return c1;
 }
 
 function hasIntersection(s1, s2) {
@@ -245,185 +290,244 @@ function hasIntersection(s1, s2) {
     return false;
 }
 
-function findColSpan(ig, cols, offset) {
+function findColSpan(agendum, cols, offset) {
     var start = -1, end = -1, i;
     for (i=offset; i<cols.length; i++) {
-        if (hasIntersection(ig.targets, cols[i].ids || [])) {
+        if (hasIntersection(agendum.targets, cols[i].ids || [])) {
             start = i; break;
         }
     }
     if (start < 0)
         return null;
-    for (i=start+1; i<cols.length; i++) {
-        if (hasIntersection(ig.targets, cols[i].ids || [])) end = i;
-        else break;
+    for (end=start+1; end<cols.length; end++) {
+        if (! hasIntersection(agendum.targets, cols[end].ids || [])) break;
     }
     return {"start": start, "end": end}
 }
 
-function collectGroupedItems(items) {
-    var curIds = [], itemIds, groups = [], curgrp;
+function interlinearizationAgenda(items) {
+    var curIds = [], itemIds, agenda = [], curgrp;
     items.forEach(function(item) {
-        itemIds = alignmentExpressionIds(item.alignment || item.segmentation);
+        itemIds = alignmentExpressionIds(item.algnexpr);
         if (curIds.length && itemIds && hasIntersection(curIds, itemIds)) {
             curIds = curIds.concat(itemIds);
-            curgrp = groups[groups.length-1];
+            curgrp = agenda[agenda.length-1];
             curgrp.items.push(item);
-            curgrp.targets = curIds;
+            curgrp.targets = d3.set(curIds).values();
         } else {
             curIds = itemIds || [];
-            groups.push({"items": [item], "targets": d3.set(curIds)});
+            agenda.push({"items": [item], "targets": d3.set(curIds).values()});
         }
     });
-    return groups;
+    return agenda;
 }
 
-function interlinearizeItems(cols, ig, depth) {
-    var i, span, maxDepth, colChild, subCols;
-    while (cols.length > 1) {
-        cols = [mergeColumns(cols[0], cols[1])].concat(cols.slice(2));
-    }
-    // from here cols is a single column
-    cols = cols[0];
-    // Now find the proper depth; depth is the number of rows in columns,
-    // not nesting depth.
-    for (i=0; i<depth; i++) {
-        colChild = cols.children[i];
-        if (colChild === undefined)
-            cols.children[i] = emptyRow();
-        else if (colChild.class == "row") {
-            subCols = colChild.children;
-            span = findColSpan(ig, subCols, 0);
-            if (span !== null) {
-                // do some recursive surgery to insert the new items
-                cols.children[i] = (
-                    subCols.slice(0, span.start) +
-                    interlinearizeItems(
-                        subCols.slice(span.start, span.end), ig, depth
-                    ) +
-                    subCols.slice(span.end)
-                )
-            }
-            maxDepth = 
+function appendItemsToColumn(col, items) {
+    if (col.children === undefined) col.children = [];
+    col.children.push(items);
+    col.ids = getContainedIds(col);
+    col.tierIds = getContainedTierIds(col);
+}
+
+function interlinearizeItems(agendum, cols) {
+    var col, row, span, maxDepth, colChild, subCols;
+    if (cols.length > 1) {
+        // more than one column aligned; merge and descend no further
+        col = mergeColumns(cols);
+        appendItemsToColumn(col, agendum.items);
+    } else {
+        // 1 column (should never be 0 columns)
+        col = cols[0];
+        if (col === undefined) { console.log("warning: unspecified col"); }
+        if (agendum.targets == col.id || col.children === undefined) {
+            // we've arrived at our destination or there's nowhere else to go;
+            // just append to the children
+            appendItemsToColumn(col, agendum.items);
+        } else {
+            // descend on the last row
+            row = col.children[col.children.length - 1];
+            span = findColSpan(agendum, row, 0);
+            // there should be a matching span; if not, just make it all
+            if (!span) span = {"start": 0, "end": row.length};
+            row = d3.merge([
+                row.slice(0, span.start),
+                [interlinearizeItems(
+                    agendum,
+                    row.slice(span.start, span.end)
+                )],
+                row.slice(span.end)
+            ])
+            // don't forget to reassign the original
+            col.children[col.children.length - 1] = row;
+            col.ids = getContainedIds(col);
+            col.tierIds = getContainedTierIds(col);
         }
     }
-    return cols;
-    // if (depth <= 0) {
-    //     cols
-    // }
+    return col;
 }
 
-function emptyRow() { return {"class": "row", "ids": [], "children": []}; }
-
-function fillItemGroup(obj, depth) {
-    var ig = [];
-    for (i=0; i<depth-1; i++) ig.push(emptyRow());
-    ig.push(obj);
-    return ig;
+function makeItemCol(item, tier) {
+    return {
+        "id": item.id,
+        "ids": [item.id],  // ids of all contained children (if any)
+        "tierId": tier.id,
+        "tierIds": [tier.id],  // tier ids of all contained children
+        "algnexpr": item.alignment || item.segmentation
+    };
 }
 
-function interlinearizeTier(tg, t, depth) {
-    var children = [],
+function plungeItemCol(ics, depth) {
+    // "plunge" as in "make deeper"
+    var children = [], itemcol;
+    for (; depth > 0; depth--) children.push([]);
+    children.push(ics);
+    itemcol = {"children": children};
+    itemcol.ids = getContainedIds(itemcol);
+    itemcol.tierIds = getContainedTierIds(itemcol);
+    return itemcol;
+}
+
+function padItemCols(ic, ignoreIds) {
+    // just descend to the last node and add a new empty row as a child
+    if (!ic.children)
+        ic.children = [[]];
+    else
+        ic.children[ic.children.length - 1].forEach(function(child) {
+            if (!ignoreIds.has(ic.id))
+                padItemCols(child, ignoreIds);
+        });
+}
+
+function interlinearizeTier(t, tg) {
+    var ics = t.items.map(function(i) { return makeItemCol(i, t); }),
+        children = [],
+        added = d3.set(),
         tgIdx = 0,
         delay = [],
-        colspan, curIds;
-    (collectGroupedItems(t.items) || []).forEach(function(ig, i) {
-        colspan = findColSpan(ig, tg, tgIdx);
+        colspan;
+    (interlinearizationAgenda(ics) || []).forEach(function(agendum) {
+        colspan = findColSpan(agendum, tg.children, tgIdx);
         if (colspan !== null) {
             // first catch up to the next index by padding and undelaying
-            while (tgIdx < colspan.start) {
-                children.push(interlinearizeItems(
-                    tg[tgIdx], {"items": [], "targets": []}, depth
-                ));
-                tgIdx += 1;
+            for (; tgIdx < colspan.start; tgIdx++) {
+                padItemCols(tg.children[tgIdx], added);
+                if (added.empty())
+                    children.push(tg.children[tgIdx]);
+                added = d3.set();  // reset for new item group
             }
             while (delay.length)
-                children.push(fillItemGroup(delay.shift(), depth));
+                children.push(
+                    plungeItemCol(delay.shift().items, tg.tiers.length)
+                );
             // now add new items (align to as many columns as necessary)
             children.push(interlinearizeItems(
-                tg.slice(colspan.start, colspan.end), ig, depth
+                agendum, tg.children.slice(colspan.start, colspan.end)
             ));
-            tgIdx = colspan.end;
+            agendum.items.forEach(function(i) { added.add(i.id); });
         } else {
-            delay.push(ig);
+            delay.push(agendum);
         }
     });
     // If there's any remaining or delayed items, add them
-    while (tgIdx < tg.length) {
-        children.push(interlinearizeItems(tg[tgIdx], [], depth));
-        tgIdx += 1;
+    for (; tgIdx < tg.length; tgIdx++) {
+        padItems(tg.children[tgIdx]);
+        if (added.empty()) children.push(tg.children[tgIdx]);
+        added = d3.set();  // reset for new item group
     }
-    while (delay.length) children.push(fillItemGroup(delay.shift(), depth));
+    while (delay.length)
+        children.push(plungeItemCol(delay.shift().items, tg.tiers.length));
+    // finally update the tier group
+    tg.children = children;
+    tg.tiers.push(t);
+    if (t.id) tg.tierIds.push(t.id);
+    // nothing to return
+}
 
-    return children;
+function interlinearizable(t, tg) {
+    var tgt = t.alignment || t.segmentation;
+    return (
+        t.class == "interlinear" &&
+        tg &&
+        tgt &&
+        tg.tierIds.indexOf(tgt) >= 0
+    );
+}
+
+function tierGroupFromTier(t) {
+    return {
+        "tiers": [t],
+        "tierIds": [t.id],
+        "class": getTierClass(t),
+        "children": t.items.map(function(i) { return makeItemCol(i, t); })
+    };
 }
 
 function computeTierGroups(igtData) {
-    var groups = [],
-        curIds = [],
-        depthCtr = {}, newDepth,
-        prevClass, igroups, algnTgt;
+    var groups = [], curgrp, igroups;
     igtData.tiers.forEach(function(t) {
-        igroups = null;
-        algnTgt = t.alignment || t.segmentation;
-        if (t.class == "interlinear"
-                && prevClass == "interlinear"
-                && curIds.indexOf(algnTgt) >= 0) {
-            newDepth = depthCtr[algnTgt] + 1;
-            igroups = interlinearizeTier(
-                groups[groups.length-1].children, t, newDepth
-            );
-            if (igroups) {
-                groups[groups.length-1].children = igroups;
-                groups[groups.length-1].tiers.push(t);
-                depthCtr[t.id] = newDepth;
-            }
+        if (interlinearizable(t, curgrp))
+            interlinearizeTier(t, groups[groups.length-1]);
+        else {
+            groups.push(tierGroupFromTier(t));
+            curgrp = t.class == "interlinear" ? groups[groups.length-1] : null;
         }
+        //     t.class == "interlinear"
+        //         && prevClass == "interlinear"
+        //         && curIds.indexOf(algnTgt) >= 0) {
+        //     newDepth = depthCtr[algnTgt] + 1;
+        //     igroups = interlinearizeTier(
+        //         groups[groups.length-1].children, t, newDepth
+        //     );
+        //     if (igroups) {
+        //         groups[groups.length-1].children = igroups;
+        //         groups[groups.length-1].tiers.push(t);
+        //         depthCtr[t.id] = newDepth;
+        //     }
+        // }
         // igroups can be null if the tier isn't interlinear or if
         // interlinearization failed
-        if (!igroups) {
-            igroups = t.items.map(function(item) {
-                return {"class": "item", "ids": [item.id], "item": item};
-            });
-            groups.push({"tiers": [t],
-                         "ids": igroups.map(function(ig) { return ig.ids; }),
-                         "class": t.class, "children": igroups});
-            curIds = [];
-            depthCtr[t.id] = 1;
-        }
-        prevClass = t.class;
-        if (t.id) curIds.push(t.id)
+        // if (!igroups) {
+        //     igroups = t.items.map(function(item) {
+        //         return {"class": "item", "ids": [item.id], "item": item};
+        //     });
+        //     groups.push({"tiers": [t],
+        //                  "ids": igroups.map(function(ig) { return ig.ids; }),
+        //                  "class": t.class, "children": igroups});
+        //     curIds = [];
+        //     depthCtr[t.id] = 1;
+        // }
+        // prevClass = t.class;
+        // if (t.id) curIds.push(t.id)
     });
     return groups;
 }
 
 function populateItemGroup(ig, igData) {
-    if (igData.class == "item") {
-        ig.selectAll(".item")
-            .data([igData.item])
-          .enter().append("div")
+    var rowdiv, coldiv;
+    if (igData.id)
+        ig.append("div")
             .classed("item", true)
-            .attr("data-id", function(d) { return d.id; });
-    }
-    // if (!igData.children.length) {
-
-    // } else {
-    //     for (i=0; i<igData.children.length; i++) {
-
-    //         populateItemGroup(ig.append())
-    //     }
-    // }
+            .attr("data-id", igData.id)
+            .attr("data-tier-id", igData.tierId);
+    (igData.children || []).forEach(function(row) {
+        rowdiv = ig.append("div").classed("row", true);
+        row.forEach(function(itemcol) {
+            coldiv = rowdiv.append("div").classed("col", true);
+            populateItemGroup(coldiv , itemcol);
+        });
+    });
 }
 
 function populateTierGroup(tg, tgData) {
-    // first a header, then the content
+    // Xigt info about tier goes in the corresponding header
     var header = tg.append("div")
         .classed("tiergroup-header", true);
-    header.selectAll("div.tier-label")
+    header.selectAll("div.tier")
         .data(tgData.tiers)
       .enter().append("div")
-        .classed("tier-label", true)
-        .text(function(d) { return d.type || "(none)"; });
+        .classed("tier", true)
+        .text(function(d) { return d.type || "(anonymous)"; });
+    // (possibly nested) item groups go in the content block
     var content = tg.append("div")
         .classed("tiergroup-content", true);
     content.selectAll(".itemgroup")
