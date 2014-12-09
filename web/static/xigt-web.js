@@ -533,9 +533,11 @@ function populateTierGroup(tg, tgData) {
     // Xigt info about tier goes in the corresponding header
     var header = tg.append("div")
         .classed("tiergroup-header", true);
-    header.selectAll("div.tier")
+    header.selectAll("div.tier-header")
         .data(tgData.tiers)
       .enter().append("div")
+        .classed("tier-header", true)
+      .append("div")
         .classed("tier", true)
         .text(function(d) { return d.type || "(anonymous)"; });
     // (possibly nested) item groups go in the content block
@@ -560,25 +562,8 @@ function igtLayout(elemId, igtData) {
     igt.selectAll("div.itemgroup div.item")
         .each(function(d) { d._cache = {}; })
         .text(function(d) { return getItemContent(elemId, escapeId(d.id));});
-    // var tiers = tiergroups.selectAll(".tier")
-    //     .data(function(d) { return d; })
-    //   .enter().append("div")
-    //     .classed("tier", true);
-    //var tiers = tiergroups.selectAll(".tier")
-    //    .data(igtData.tiers);
-    //tiers.each(function(td) {
-        //var groups = d3.select(this).selectAll("div.tier-content div.column")
-        //    .data(td.groups);
-        //groups.each(function(gd) {
-    //        d3.select(this).selectAll("div.item")
-    //            .data(td.items)
-    //            .each(function(d) { d._cache = {}; })  // setup a cache
-    //            .on("mouseover", function(d) { highlightReferents(elemId, d, true); })
-    //            .on("mouseout", function(d) { dehighlightReferents(elemId); });
-
-            //items.append(groups.selectAll("div.item").data(gd.items));
-        //});
-    //});
-    //var items = tiers.selectAll("div.item");
-    //items.text(function(d) { return getItemContent(elemId, escapeId(d.id)); });
+    var items = igt.selectAll("div.item")
+        .each(function(d) { d._cache = {}; })  // cache is used for highlighting
+        .on("mouseover", function(d) { highlightReferents(elemId, d, true); })
+        .on("mouseout", function(d) { dehighlightReferents(elemId); });
 }
