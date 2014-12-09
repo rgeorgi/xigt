@@ -76,7 +76,7 @@ The boy does not see the girl.
       <item id="w3m4g1" alignment="w3m4">DYN</item>
       <item id="w3m4g2" alignment="w3m4">FIN</item>
     </tier>
-    <tier type="syntax" id="x" alignment="w">
+    <tier type="syntax" id="x" alignment="w" children="x">
       <item id="x1" alignment="w1">NP-SBJ</item>
       <item id="x2" alignment="w2">NP-OBJ</item>
       <item id="x3" alignment="w3">VBD</item>
@@ -127,7 +127,7 @@ The boy does not see the girl.
       <item id="w3m4g" alignment="w3m4">PRS</item>
       <item id="w3m5g" alignment="w3m5">NEG</item>
     </tier>
-    <tier type="syntax" id="x" alignment="w">
+    <tier type="syntax" id="x" alignment="w" children="x">
       <item id="x1" alignment="w1">NP-SBJ</item>
       <item id="x2" alignment="w2">NP-OBJ</item>
       <item id="x3" alignment="w3">VBZ</item>

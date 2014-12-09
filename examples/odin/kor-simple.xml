@@ -36,7 +36,7 @@ line=961 tag=T:     `I made the child eat rice.'
       <item id="w3" segmentation="p1[16:22]"/>
       <item id="w4" segmentation="p1[23:35]"/>
     </tier>
-    <tier type="glosses" id="g" alignment="m" content="c">
+    <tier type="glosses" id="g" alignment="w" content="c">
       <item id="w1.g1" alignment="w1" content="c2[0:5]"/>
       <item id="w2.g1" alignment="w2" content="c2[6:15]"/>
       <item id="w3.g1" alignment="w3" content="c2[16:24]"/>
