@@ -186,39 +186,6 @@ function tierClasses(tier) {
     return classes;
 }
 
-/*
-    Interlinear tiers get grouped into columns like this:
-      AB-C
-      1 -2
-      <div class="interlinear-column">
-        <div class="interlinear-row">
-          <div class="item">AB-C</div>
-        </div>
-        <div class="interlinear-row">
-          <div class="interlinear-column">
-            <div class="interlinear-row">
-              <div class="item">1</div>
-              <div class="item">-2</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-*/
-
-// function containedIds(obj) {
-//     var ids = [], subIds;
-//     if (obj.class == "item" && item.id)
-//         ids.push(item.id);
-//     else {
-//         obj.children.forEach(function (c) {
-//             subIds = containedIds(c);
-//             ids = ids.concat(subIds);
-//         })
-//     }
-//     return ids;
-// }
-
 function getTierClass(t) {
     return settings.tier_classes[t.type] || settings.default_tier_class;
 }
@@ -252,32 +219,6 @@ function mergeColumns(cols) {
     col.ids = getContainedIds(col);
     col.tierIds = getContainedTierIds(col);
     return col;
-        // "ids": getContainedIds(cols.reduce(
-        //     function(ids, col) {
-        //         if (col.id) ids.push(col.id);
-        //         if (col.ids) ids = ids.concat(col.ids);
-        //         return ids;
-        //     }, []
-        // ),
-        // "tierIds": cols.reduce(
-        //     function(ids, col) {
-        //         if (col.tierId) ids.push(col.tierId);
-        //         if (col.tierIds) ids = ids.concat(col.tierIds);
-        //         return ids;
-        //     }, []
-        // ),
-
-    // var children = [],
-    // for (i=0; i<depth; i++) {
-    //     left = c1.children[i] || {"class": "row", "children": []};
-    //     right = c2.children[i] || {"class": "row", "children": []};
-    //     if (left.class != "row") left = {"class": "row", "children": [left]};
-    //     if (right.class != "row") right = {"class": "row", "children": [right]};
-    //     children.push(left.concat(right));
-    // }
-    // c1.children = children;
-    // c1.ids = c1.ids.concat(c2.ids)
-    // return c1;
 }
 
 function hasIntersection(s1, s2) {
@@ -464,46 +405,46 @@ function computeTierGroups(igtData) {
             groups.push(tierGroupFromTier(t));
             curgrp = t.class == "interlinear" ? groups[groups.length-1] : null;
         }
-        //     t.class == "interlinear"
-        //         && prevClass == "interlinear"
-        //         && curIds.indexOf(algnTgt) >= 0) {
-        //     newDepth = depthCtr[algnTgt] + 1;
-        //     igroups = interlinearizeTier(
-        //         groups[groups.length-1].children, t, newDepth
-        //     );
-        //     if (igroups) {
-        //         groups[groups.length-1].children = igroups;
-        //         groups[groups.length-1].tiers.push(t);
-        //         depthCtr[t.id] = newDepth;
-        //     }
-        // }
-        // igroups can be null if the tier isn't interlinear or if
-        // interlinearization failed
-        // if (!igroups) {
-        //     igroups = t.items.map(function(item) {
-        //         return {"class": "item", "ids": [item.id], "item": item};
-        //     });
-        //     groups.push({"tiers": [t],
-        //                  "ids": igroups.map(function(ig) { return ig.ids; }),
-        //                  "class": t.class, "children": igroups});
-        //     curIds = [];
-        //     depthCtr[t.id] = 1;
-        // }
-        // prevClass = t.class;
-        // if (t.id) curIds.push(t.id)
     });
     return groups;
 }
+
+// function populateItemGroup(ig, igData) {
+//     var rows, coldiv, data = [];
+//     if (igData.id) data.push(igData.item);
+//     data = data.concat(igData.children || []);
+//     rows = ig.selectAll(".row")
+//         .data(data)
+//       .enter().append("div")
+//         .classed("row", true)
+//         .each(function(d) {
+//             if (d.id) {
+//                 cols = d3.select(this).selectAll(".item")
+//                     .data([d])
+//                   .enter().append("div")
+//                     .classed("item", true)
+//                     .attr("data-id", d.id)
+//                     .attr("data-tier-id", d.tierId);
+//             } else if (d.length) {
+//                 d3.select(this).selectAll(".col")
+//                     .data(d)
+//                   .enter().append("div").classed("col", true)
+//                     .append("div").classed("subgroup", true)
+//                     .each(function(d) {
+//                         populateItemGroup(d3.select(this), d);
+//                     });                
+//             }
+//         });
+// }
 
 function populateItemGroup(ig, igData) {
     var rows, coldiv;
     if (igData.id)
         ig.selectAll(".item")
             .data([igData.item])
-          .enter().append("div")
-            .classed("item", true)
-            .attr("data-id", igData.id)
-            .attr("data-tier-id", igData.tierId);
+          .enter().append("div").classed("item", true)
+            .attr("data-id", function(d) { return d.id; })
+            .attr("data-tier-id", function(d) { return d.tierId; });
     rows = ig.selectAll(".row")
         .data(igData.children || [])
       .enter().append("div")
@@ -512,33 +453,23 @@ function populateItemGroup(ig, igData) {
             if (d.length) {
                 d3.select(this).selectAll(".col")
                     .data(d)
-                  .enter().append("div")
-                    .classed("col", true)
+                  .enter().append("div").classed("col", true)
                     .each(function(d) {
                         populateItemGroup(d3.select(this), d);
-                    });
+                    });                
             }
         });
-
-    // (igData.children || []).forEach(function(row) {
-    //     rowdiv = append("div").classed("row", true);
-    //     row.forEach(function(itemcol) {
-    //         coldiv = rowdiv.append("div").classed("col", true);
-    //         populateItemGroup(coldiv, itemcol);
-    //     });
-    // });
 }
+
 
 function populateTierGroup(tg, tgData) {
     // Xigt info about tier goes in the corresponding header
-    var header = tg.append("div")
-        .classed("tiergroup-header", true);
+    var header = tg.append("div").classed("tiergroup-header", true);
     header.selectAll("div.tier-header")
         .data(tgData.tiers)
-      .enter().append("div")
-        .classed("tier-header", true)
-      .append("div")
-        .classed("tier", true)
+      .enter().append("div").classed("tier-header", true)
+        .append("div").classed("tier", true)
+        .attr("data-tier-id", function(d) { return d.id; })
         .text(function(d) { return d.type || "(anonymous)"; });
     // (possibly nested) item groups go in the content block
     var content = tg.append("div")
@@ -546,7 +477,7 @@ function populateTierGroup(tg, tgData) {
     content.selectAll(".itemgroup")
         .data(tgData.children)
       .enter().append("div")
-        .classed({"itemgroup": true, "col": true})
+        .classed("itemgroup", true)
         .each(function(d) { populateItemGroup(d3.select(this), d); });
 }
 

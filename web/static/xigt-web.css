@@ -1,118 +1,104 @@
 
-div {
-    /*border-radius: 4px;*/
-    border: none;
-    border-color: transparent;
+body {
+    background-color: #F5F5F5;
+    color: #111;
 }
 
-.igt {
+div.igt {
     display: table;
     width: auto;
-    border: 1px solid;
-    border-spacing: 5px;
+    border: 2px solid;
+    border-spacing: 2px;
 }
 
-.tiergroup {
-    display: table-row;
-}
 
-.tiergroup-header {
-    display: inline-table;
-    padding: 0px;
-    margin: 0px;
-}
-div.tiergroup-header div.tier-header {
-    vertical-align: top;
+div.tiergroup {
     display: table-row;
     padding: 0px;
     margin: 0px;
-    font-weight: bold;
+    border-spacing: 0px;
 }
-div.tier-header div.tier {
+/* special formatting just for tiergroup-header and tiergroup-content */
+div.tiergroup>div {
     display: table-cell;
-    padding: 0px;
-    margin: 0px;
-}
-
-
-.tiergroup-content {
-    display: table-cell;
-    padding: 2px;
-}
-
-
-div.itemgroup {
-    display: inline-block;
     vertical-align: top;
-    border: solid;
-    border-width: thin;
-    border-color: #DDD;
+    border-color: transparent;
+}
+/* tier-header and itemgroup should share some properties to display
+   well together */
+div.tiergroup-header, div.itemgroup {
+    vertical-align: top;
+    border: 2px solid;
+    border-collapse: collapse;
     padding: 2px;
     margin-left: 2px;
     margin-right: 2px;
+    margin-bottom: 4px;
+}
+/* similarly, tier and item classes should share some properties */
+div.tier, div.item {
+    border: 2px solid;
+}
+
+div.tier { border-color: transparent; }
+
+/* tier header specifics */
+div.tier-header {
+    display: table-row;
+    border: 2px solid transparent;
+    vertical-align: top;
+    font-weight: bold;
+}
+div.tier-header div {
+    display: table-cell;
+}
+
+/* tier content specifics */
+
+div.itemgroup {
+    display: inline-block;
+    border-color: #DDD;
+}
+
+div.itemgroup div {
 }
 
 div.itemgroup div.row {
-    display: block;
-    padding: 0px;
 }
 
 div.itemgroup div.col {
-    display: inline-block;
-    padding: 0px;
 }
 
-div.enumeration div.itemgroup { list-style-type: none; }
-div.enumeration div.item { display: list-item; }
-
-.tier.interlinear { display: table-row; }
-
-.item {
-    display: inline-block;
-    margin-top: 0.2em;
-    background-color: none;
+div.itemgroup div.item {
+    border-color: transparent;
+    /*padding: 0.2em;
+    margin-top: 0px;*/
 }
-.item:hover {
-    background-color: #4AC;
+
+div.itemgroup div.item.referenced{ 
+    border: 2px solid #4AC;
+}
+
+
+div.enumeration div.itemgroup { display: block; }
+
+div.interlinear div.row { display: inline-table; }
+div.interlinear div.col { display: table-cell; }
+div.interlinear div.item { display: table-cell; white-space: nowrap; }
+div.interlinear div.item:hover { border-color: #4AC; }
+
+
+div.item:hover {
+    background-color: #44AACC;
     color: #FFF;
 }
-div.interlinear div.col {
-    display: inline-block;
-    margin-top: 2px;
-    /*background-color: #F2EBE0;
-    border-color: #D0D0CC;*/
-}
-div.interlinear div.item {
-    position: relative;
-    /*float: left;*/
-    /*display: table-cell;*/
-    white-space: nowrap;
-    border-color: #DDD;
-    width: auto;
-    padding-left: 4px;
-    padding-right: 4px;
-}
-div.interlinear div.item:hover {
-    border-color: #4AC;
-}
 
-div.interlinear div.item.referenced {
-    border-color: #04F;
-}
-div.item.referenced {
-    border-color: #00F;
-}
-
-
-div.item span {
-    background-color: #CDF;
-}
 div.item span.alignment {
-    background-color: #FFA;
+    background-color: #FFEF88;
 }
 div.item span.content {
-    background-color: #FAA;
+    background-color: #FF9C99;
 }
 div.item span.segmentation {
-    background-color: #AFA;
+    background-color: #97FF9B;
 }
