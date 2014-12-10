@@ -82,7 +82,7 @@ div.itemgroup div.item.referenced{
 
 div.enumeration div.itemgroup { display: block; }
 
-div.interlinear div.row { display: inline-table; }
+div.interlinear div.row { display: table; }
 div.interlinear div.col { display: table-cell; }
 div.interlinear div.item { display: table-cell; white-space: nowrap; }
 div.interlinear div.item:hover { border-color: #4AC; }

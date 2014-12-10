@@ -215,7 +215,7 @@ function getContainedTierIds(col) {
 
 function mergeColumns(cols) {
     // make a new column that contains cols on the first row
-    var col = {"children": [cols]};
+    var col = {"children": [[cols]]};
     col.ids = getContainedIds(col);
     col.tierIds = getContainedTierIds(col);
     return col;
