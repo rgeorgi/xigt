@@ -187,7 +187,8 @@ function tierClasses(tier) {
 }
 
 function getTierClass(t) {
-    return settings.tier_classes[t.type] || settings.default_tier_class;
+    return (settings.tier_types[t.type] || {}).class ||
+            settings.default_tier_class;
 }
 
 function getContainedIds(col) {
@@ -432,7 +433,7 @@ function computeTierGroups(igtData) {
 //                     .append("div").classed("subgroup", true)
 //                     .each(function(d) {
 //                         populateItemGroup(d3.select(this), d);
-//                     });                
+//                     });
 //             }
 //         });
 // }
@@ -456,7 +457,7 @@ function populateItemGroup(ig, igData) {
                   .enter().append("div").classed("col", true)
                     .each(function(d) {
                         populateItemGroup(d3.select(this), d);
-                    });                
+                    });
             }
         });
 }

@@ -1,12 +1,14 @@
 {
-    "default_tier_class": "",
-    "tier_classes": {
-        "words": "interlinear",
-        "morphemes": "interlinear",
-        "glosses": "interlinear",
-        "phrases": "enumeration",
-        "translations": "enumeration"
+    "tier_types": {
+        "words": { "class": "interlinear" },
+        "morphemes": { "class": "interlinear" },
+        "glosses": { "class": "interlinear" },
+        "phrases": { "class": "enumeration" },
+        "translations": { "class": "enumeration" },
+        "odin": { "class": "enumeration" },
+        "syntax": { "reference_attributes": ["alignment", "children"] }
     },
+    "default_tier_class": "",
     "max_igts_per_page": 10,
     "reference_attributes": [
         "alignment",

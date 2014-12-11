@@ -1,13 +1,15 @@
 
 body {
-    background-color: #F5F5F5;
+    background-color: #555;
     color: #111;
 }
 
 div.igt {
     display: table;
     width: auto;
+    background: #F8F8F8;
     border: 2px solid;
+    border-radius: 6px;
     border-spacing: 2px;
 }
 
@@ -75,7 +77,7 @@ div.itemgroup div.item {
     margin-top: 0px;*/
 }
 
-div.itemgroup div.item.referenced{ 
+div.itemgroup div.item.referenced{
     border: 2px solid #4AC;
 }
 

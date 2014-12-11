@@ -1,0 +1,118 @@
+
+div {
+    /*border-radius: 4px;*/
+    border: none;
+    border-color: transparent;
+}
+
+.igt {
+    display: table;
+    width: auto;
+    border: 1px solid;
+    border-spacing: 5px;
+}
+
+.tiergroup {
+    display: table-row;
+}
+
+.tiergroup-header {
+    display: inline-table;
+    padding: 0px;
+    margin: 0px;
+}
+div.tiergroup-header div.tier-header {
+    vertical-align: top;
+    display: table-row;
+    padding: 0px;
+    margin: 0px;
+    font-weight: bold;
+}
+div.tier-header div.tier {
+    display: table-cell;
+    padding: 0px;
+    margin: 0px;
+}
+
+
+.tiergroup-content {
+    display: table-cell;
+    padding: 2px;
+}
+
+
+div.itemgroup {
+    display: inline-block;
+    vertical-align: top;
+    border: solid;
+    border-width: thick;
+    border-color: #DDD;
+    padding: 2px;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+div.itemgroup div.row {
+    display: block;
+    padding: 0px;
+}
+
+div.itemgroup div.col {
+    display: inline-block;
+    padding: 0px;
+}
+
+div.enumeration div.itemgroup { list-style-type: none; }
+div.enumeration div.item { display: list-item; }
+
+.tier.interlinear { display: table-row; }
+
+.item {
+    display: inline-block;
+    margin-top: 0.2em;
+    background-color: none;
+}
+.item:hover {
+    background-color: #4AC;
+    color: #FFF;
+}
+div.interlinear div.col {
+    display: inline-block;
+    margin-top: 2px;
+    /*background-color: #F2EBE0;
+    border-color: #D0D0CC;*/
+}
+div.interlinear div.item {
+    position: relative;
+    /*float: left;*/
+    /*display: table-cell;*/
+    white-space: nowrap;
+    border-color: #DDD;
+    width: auto;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+div.interlinear div.item:hover {
+    border-color: #4AC;
+}
+
+div.interlinear div.item.referenced {
+    border-color: #04F;
+}
+div.item.referenced {
+    border-color: #00F;
+}
+
+
+div.item span {
+    background-color: #CDF;
+}
+div.item span.alignment {
+    background-color: #FFA;
+}
+div.item span.content {
+    background-color: #FAA;
+}
+div.item span.segmentation {
+    background-color: #AFA;
+}

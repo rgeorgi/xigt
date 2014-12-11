@@ -31,9 +31,9 @@ def make_igt_object(igt):
         tier_obj['id'] = tier.id
         tier_obj['type'] = tier.type
         tier_obj['items'] = [make_item_object(i) for i in tier.items]
-        tier_obj['class'] = settings.get('tier_classes', {}).get(
-                tier.type,
-                settings.get('default_tier_class', '')
+        tier_obj['class'] = settings.get('tier_types', {}).get(
+                tier.type, {}).get(
+                'class', settings.get('default_tier_class', '')
         )
         tiers.append(tier_obj)
     return {'id': igt.id, 'tiers': tiers}
